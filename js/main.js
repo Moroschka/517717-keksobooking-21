@@ -1,7 +1,7 @@
 'use strict';
 
 const NUMBER_OFFERS = 8;
-const AVATARS = [`img/avatars/user01.png`, `img/avatars/user02.png`, `img/avatars/user03.png`, `img/avatars/user04.png`, `img/avatars/user05.png`, `img/avatars/user06.png`, `img/avatars/user07.png`, `img/avatars/user08.png`,];
+const AVATARS = [`img/avatars/user01.png`, `img/avatars/user02.png`, `img/avatars/user03.png`, `img/avatars/user04.png`, `img/avatars/user05.png`, `img/avatars/user06.png`, `img/avatars/user07.png`, `img/avatars/user08.png`];
 const TITLES = [`Заголовок 1`, `Заголовок 2`, `Заголовок 3`, `Заголовок 4`, `Заголовок 5`];
 const CHECKIN = [`12:00`, `13:00`, `14:00`];
 const CHECKOUT = [`12:00`, `13:00`, `14:00`];
@@ -22,8 +22,9 @@ const getRandomNumber = function (min, max) {
 };
 
 const makeMapActive = function () {
-  document.querySelector('.map').classList.remove('map--faded');
-}
+  document.querySelector(`.map`).classList.remove(`map--faded`);
+};
+makeMapActive();
 
 const createOffer = function () {
   return {
@@ -40,14 +41,14 @@ const createOffer = function () {
       "checkin": CHECKIN[0],
       "checkout": CHECKOUT[0],
       "features": FEATURES,
-      "description": DESCRIPTION, 
+      "description": DESCRIPTION,
       "photos": PHOTOS
     },
-   "location": {
+    "location": {
       "x": getRandomNumber(130, 630),
       "y": getRandomNumber(130, 630)
     }
-  }
+  };
 };
 
 const createOffersMock = function () {
@@ -64,8 +65,8 @@ const renderPinOffer = function (offer) {
   const offerElement = pinOfferTemplate.cloneNode(true);
   offerElement.querySelector(`.map__pin`).style.left = offer.location.x + `px`;
   offerElement.querySelector(`.map__pin`).style.top = offer.location.y + `px`;
-  offerElement.querySelector(`.map__pin`).setAttribute('src', offer.author.avatar);
-  offerElement.querySelector(`.map__pin`).setAttribute('alt', offer.offer.title);
+  offerElement.querySelector(`.map__pin`).setAttribute(`src`, offer.author.avatar);
+  offerElement.querySelector(`.map__pin`).setAttribute(`alt`, offer.offer.title);
 
   return offerElement;
 };
