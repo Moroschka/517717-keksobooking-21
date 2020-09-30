@@ -18,6 +18,7 @@ const PIN_HEIGHT = 70;
 const pinOfferTemplate = document.querySelector(`#pin`).content;
 const fieldMap = document.querySelector(`.map`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
+const mapWidth = similarListElement.offsetWidth;
 
 const createImgIndex = function () {
   let imgIndex = [];
@@ -69,7 +70,7 @@ const createOffer = function () {
       "photos": PHOTOS
     },
     "location": {
-      "x": getRandomNumber(25, 1125),
+      "x": getRandomNumber(PIN_WIDTH / 2, mapWidth - PIN_WIDTH - PIN_WIDTH / 2),
       "y": getRandomNumber(130, 630)
     }
   };
