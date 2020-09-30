@@ -69,7 +69,7 @@ const createOffer = function () {
       "photos": PHOTOS
     },
     "location": {
-      "x": getRandomNumber(130, 630),
+      "x": getRandomNumber(25, 1125),
       "y": getRandomNumber(130, 630)
     }
   };
