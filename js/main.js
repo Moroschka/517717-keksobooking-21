@@ -1,7 +1,6 @@
 'use strict';
 
 const NUMBER_OFFERS = 8;
-const AVATARS = [`img/avatars/user01.png`, `img/avatars/user02.png`, `img/avatars/user03.png`, `img/avatars/user04.png`, `img/avatars/user05.png`, `img/avatars/user06.png`, `img/avatars/user07.png`, `img/avatars/user08.png`];
 const TITLES = [`Заголовок 1`, `Заголовок 2`, `Заголовок 3`, `Заголовок 4`, `Заголовок 5`];
 const CHECKIN = [`12:00`, `13:00`, `14:00`];
 const CHECKOUT = [`12:00`, `13:00`, `14:00`];
@@ -13,11 +12,34 @@ const GUESTS = [1, 2, 3, 4, 5];
 const PRICE = 30000;
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 const TYPE_HOUSING = [`palace`, `flat`, `house`, `bungalow`];
-const pinOfferTemplate = document.querySelector(`#pin`).content;
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
+
+const pinOfferTemplate = document.querySelector(`#pin`).content;
 const fieldMap = document.querySelector(`.map`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
+
+const createImgIndex = function () {
+  let imgIndex = [];
+  for (let i = 1; i <= NUMBER_OFFERS; i++) {
+    if (i < 10) {
+      imgIndex.push(`0` + i);
+    } else if (i >= 10) {
+      imgIndex.push(String(i));
+    }
+  }
+  return imgIndex;
+};
+const imgIndexValues = createImgIndex();
+
+const createAvatarsUrl = function () {
+  let avatarsUrl = [];
+  for (let i = 0; i < NUMBER_OFFERS; i++) {
+    avatarsUrl.push(`img/avatars/user` + imgIndexValues[i] + `.png`);
+  }
+  return avatarsUrl;
+};
+const avatars = createAvatarsUrl();
 
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max - min));
@@ -31,7 +53,7 @@ makeMapActive();
 const createOffer = function () {
   return {
     "author": {
-      "avatar": AVATARS[0]
+      "avatar": avatars[0]
     },
     "offer": {
       "title": TITLES[0],
