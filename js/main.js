@@ -14,6 +14,8 @@ const PRICE = 30000;
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 const TYPE_HOUSING = [`palace`, `flat`, `house`, `bungalow`];
 const pinOfferTemplate = document.querySelector(`#pin`).content;
+const PIN_WIDTH = 50;
+const PIN_HEIGHT = 70;
 const fieldMap = document.querySelector(`.map`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
 
@@ -62,16 +64,17 @@ const createOffersMock = function () {
 const offers = createOffersMock();
 
 const renderPinOffer = function (offer) {
-  const offerElement = pinOfferTemplate.cloneNode(true);
-  offerElement.querySelector(`.map__pin`).style.left = offer.location.x + `px`;
-  offerElement.querySelector(`.map__pin`).style.top = offer.location.y + `px`;
-  offerElement.querySelector(`.map__pin`).setAttribute(`src`, offer.author.avatar);
-  offerElement.querySelector(`.map__pin`).setAttribute(`alt`, offer.offer.title);
+  const pinOfferElement = pinOfferTemplate.cloneNode(true);
+  pinOfferElement.querySelector(`.map__pin`).style.left = (offer.location.x + PIN_WIDTH / 2) + `px`;
+  pinOfferElement.querySelector(`.map__pin`).style.top = (offer.location.y + PIN_HEIGHT) + `px`;
+  pinOfferElement.querySelector(`.map__pin`).setAttribute(`src`, offer.author.avatar);
+  pinOfferElement.querySelector(`.map__pin`).setAttribute(`alt`, offer.offer.title);
 
-  return offerElement;
+  return pinOfferElement;
 };
 
 const fillingBlockOffer = function () {
+
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
     fragment.appendChild(renderPinOffer(offers[i]));
