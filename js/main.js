@@ -3,7 +3,6 @@
 const NUMBER_OFFERS = 8;
 const CHECKIN = [`12:00`, `13:00`, `14:00`];
 const CHECKOUT = [`12:00`, `13:00`, `14:00`];
-const ADDRESS = `600 350`;
 const FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 const TYPE_HOUSING = [`palace`, `flat`, `house`, `bungalow`];
@@ -26,13 +25,16 @@ makeMapActive();
 
 const createOffersMock = function () {
   const createOffer = function (index) {
+    const locationX = getRandomNumber(PIN_WIDTH, mapWidth - PIN_WIDTH);
+    const locationY = getRandomNumber(130, 630);
+
     return {
       "author": {
         "avatar": `img/avatars/user` + (index < 10 ? `0${index}` : index) + `.png`
       },
       "offer": {
         "title": `Заголовок ${index}`,
-        "address": ADDRESS[index],
+        "address": `${locationX}, ${locationY}`,
         "price": getRandomNumber(5000, 100000),
         "type": TYPE_HOUSING[getRandomNumber(0, TYPE_HOUSING.length)],
         "rooms": getRandomNumber(1, 5),
@@ -41,11 +43,11 @@ const createOffersMock = function () {
         "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length)],
         "features": FEATURES[getRandomNumber(0, FEATURES.length)],
         "description": `Описание ${index}`,
-        "photos": PHOTOS[index]
+        "photos": PHOTOS[getRandomNumber(0, PHOTOS.length)]
       },
       "location": {
-        "x": getRandomNumber(PIN_WIDTH, mapWidth - PIN_WIDTH),
-        "y": getRandomNumber(130, 630)
+        "x": locationX,
+        "y": locationY
       }
     };
   };
