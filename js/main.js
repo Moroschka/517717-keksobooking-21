@@ -41,7 +41,7 @@ const createOffersMock = function () {
         "guests": getRandomNumber(1, 10),
         "checkin": CHECKIN[getRandomNumber(0, CHECKIN.length)],
         "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length)],
-        "features": FEATURES[getRandomNumber(0, FEATURES.length)],
+        "features": FEATURES.slice(0, getRandomNumber(0, FEATURES.length + 1)),
         "description": `Описание ${index}`,
         "photos": PHOTOS[getRandomNumber(0, PHOTOS.length)]
       },
