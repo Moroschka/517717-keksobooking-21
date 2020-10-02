@@ -1,15 +1,10 @@
 'use strict';
 
 const NUMBER_OFFERS = 8;
-const TITLES = [`Заголовок 1`, `Заголовок 2`, `Заголовок 3`, `Заголовок 4`, `Заголовок 5`];
 const CHECKIN = [`12:00`, `13:00`, `14:00`];
 const CHECKOUT = [`12:00`, `13:00`, `14:00`];
-const ROOMS = [1, 2, 3, 4, 5];
-const ADDRESS = `600 300`;
+const ADDRESS = `600 350`;
 const FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
-const DESCRIPTION = `Описание 1`;
-const GUESTS = [1, 2, 3, 4, 5];
-const PRICE = 30000;
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
 const TYPE_HOUSING = [`palace`, `flat`, `house`, `bungalow`];
 const PIN_WIDTH = 50;
@@ -20,28 +15,6 @@ const fieldMap = document.querySelector(`.map`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
 const mapWidth = similarListElement.offsetWidth;
 
-const createImgIndex = function () {
-  let imgIndex = [];
-  for (let i = 1; i <= NUMBER_OFFERS; i++) {
-    if (i < 10) {
-      imgIndex.push(`0` + i);
-    } else if (i >= 10) {
-      imgIndex.push(String(i));
-    }
-  }
-  return imgIndex;
-};
-const imgIndexValues = createImgIndex();
-
-const createAvatarsUrl = function () {
-  let avatarsUrl = [];
-  for (let i = 0; i < NUMBER_OFFERS; i++) {
-    avatarsUrl.push(`img/avatars/user` + imgIndexValues[i] + `.png`);
-  }
-  return avatarsUrl;
-};
-const avatars = createAvatarsUrl();
-
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max - min));
 };
@@ -51,36 +24,35 @@ const makeMapActive = function () {
 };
 makeMapActive();
 
-const createOffer = function () {
-  return {
-    "author": {
-      "avatar": avatars[0]
-    },
-    "offer": {
-      "title": TITLES[0],
-      "address": ADDRESS,
-      "price": PRICE,
-      "type": TYPE_HOUSING[0],
-      "rooms": ROOMS[0],
-      "guests": GUESTS[0],
-      "checkin": CHECKIN[0],
-      "checkout": CHECKOUT[0],
-      "features": FEATURES,
-      "description": DESCRIPTION,
-      "photos": PHOTOS
-    },
-    "location": {
-      "x": getRandomNumber(PIN_WIDTH / 2, mapWidth - PIN_WIDTH - PIN_WIDTH / 2),
-      "y": getRandomNumber(130, 630)
-    }
-  };
-};
-
 const createOffersMock = function () {
-  let offersMock = [];
+  const createOffer = function (index) {
+    return {
+      "author": {
+        "avatar": `img/avatars/user` + (index < 10 ? `0${index}` : index) + `.png`
+      },
+      "offer": {
+        "title": `Заголовок ${index}`,
+        "address": ADDRESS[index],
+        "price": getRandomNumber(5000, 100000),
+        "type": TYPE_HOUSING[getRandomNumber(0, TYPE_HOUSING.length)],
+        "rooms": getRandomNumber(1, 5),
+        "guests": getRandomNumber(1, 10),
+        "checkin": CHECKIN[getRandomNumber(0, CHECKIN.length)],
+        "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length)],
+        "features": FEATURES[getRandomNumber(0, FEATURES.length)],
+        "description": `Описание ${index}`,
+        "photos": PHOTOS[index]
+      },
+      "location": {
+        "x": getRandomNumber(PIN_WIDTH, mapWidth - PIN_WIDTH),
+        "y": getRandomNumber(130, 630)
+      }
+    };
+  };
 
-  for (let i = 0; i < NUMBER_OFFERS; i++) {
-    offersMock.push(createOffer());
+  let offersMock = [];
+  for (let i = 1; i < NUMBER_OFFERS + 1; i++) {
+    offersMock.push(createOffer(i));
   }
   return offersMock;
 };
@@ -90,18 +62,17 @@ const renderPinOffer = function (offer) {
   const pinOfferElement = pinOfferTemplate.cloneNode(true);
   pinOfferElement.querySelector(`.map__pin`).style.left = (offer.location.x + PIN_WIDTH / 2) + `px`;
   pinOfferElement.querySelector(`.map__pin`).style.top = (offer.location.y + PIN_HEIGHT) + `px`;
-  pinOfferElement.querySelector(`.map__pin`).setAttribute(`src`, offer.author.avatar);
-  pinOfferElement.querySelector(`.map__pin`).setAttribute(`alt`, offer.offer.title);
+  pinOfferElement.querySelector(`.map__pin img`).setAttribute(`src`, offer.author.avatar);
+  pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
 
   return pinOfferElement;
 };
 
-const fillingBlockOffer = function () {
-
+const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
     fragment.appendChild(renderPinOffer(offers[i]));
   }
   similarListElement.appendChild(fragment);
 };
-fillingBlockOffer();
+fillBlockOffer();
