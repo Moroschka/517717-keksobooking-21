@@ -5,7 +5,12 @@ const CHECKIN = [`12:00`, `13:00`, `14:00`];
 const CHECKOUT = [`12:00`, `13:00`, `14:00`];
 const FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
 const PHOTOS = [`http://o0.github.io/assets/images/tokyo/hotel1.jpg`, `http://o0.github.io/assets/images/tokyo/hotel2.jpg`, `http://o0.github.io/assets/images/tokyo/hotel3.jpg`];
-const TYPE_HOUSING = [`palace`, `flat`, `house`, `bungalow`];
+const TYPE_HOUSING = {
+  "flat": `Квартира`,
+  "bungalow": `Бунгало`,
+  "house": `Дом`,
+  "palace": `Дворец`
+};
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
 const price = {
@@ -28,6 +33,7 @@ const pinOfferTemplate = document.querySelector(`#pin`).content;
 const fieldMap = document.querySelector(`.map`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
 const mapWidth = similarListElement.offsetWidth;
+const cardTemplate = document.querySelector(`#card`).content;
 
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -54,11 +60,11 @@ const createOffersMock = function () {
         "title": `Заголовок ${index}`,
         "address": `${locationX}, ${locationY}`,
         "price": getRandomNumber(price.min, price.max),
-        "type": TYPE_HOUSING[getRandomNumber(0, TYPE_HOUSING.length)],
+        "type": TYPE_HOUSING[Object.keys(TYPE_HOUSING)[getRandomNumber(0, Object.keys(TYPE_HOUSING).length - 1)]],
         "rooms": getRandomNumber(rooms.min, rooms.max),
         "guests": getRandomNumber(guests.min, guests.max),
-        "checkin": CHECKIN[getRandomNumber(0, CHECKIN.length)],
-        "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length)],
+        "checkin": CHECKIN[getRandomNumber(0, CHECKIN.length - 1)],
+        "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length - 1)],
         "features": getRandomVariant(FEATURES),
         "description": `Описание ${index}`,
         "photos": getRandomVariant(PHOTOS)
@@ -96,3 +102,51 @@ const fillBlockOffer = function () {
   similarListElement.appendChild(fragment);
 };
 fillBlockOffer();
+
+const renderCard = function (card) {
+  const cardElement = cardTemplate.cloneNode(true);
+  let featuresList = cardElement.querySelector(`.popup__features`);
+  let imagesList = cardElement.querySelector(`.popup__photos`);
+
+  const createFeaturesList = function (features) {
+    featuresList.innerHTML = ``;
+    features.forEach(function (feature, i) {
+      feature = document.createElement(`li`);
+      featuresList.append(feature);
+      feature.setAttribute(`class`, `popup__feature popup__feature--${features[i]}`);
+    });
+  };
+
+  const createPhotoList = function (images) {
+    imagesList.innerHTML = ``;
+    images.forEach(function (photo, i) {
+      photo = document.createElement(`img`);
+      imagesList.append(photo);
+      photo.setAttribute(`src`, images[i]);
+      photo.setAttribute(`width`, `45`);
+      photo.setAttribute(`height`, `40`);
+      photo.setAttribute(`alt`, `Фотография жилья`);
+      photo.classList.add(`popup__photo`);
+    });
+  };
+  featuresList = createFeaturesList(card.offer.features);
+  imagesList = createPhotoList(card.offer.photos);
+  cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
+  cardElement.querySelector(`.popup__text--address`).textContent = card.offer.address;
+  cardElement.querySelector(`.popup__text--price`).textContent = `${card.offer.price} ₽/ночь`;
+  cardElement.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
+  cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${card.offer.checkin}, выезд до ${card.offer.checkout}`;
+  cardElement.querySelector(`.popup__type`).textContent = card.offer.type;
+  cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
+  cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
+  return cardElement;
+};
+
+const fillBlockCard = function () {
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < offers.length; i++) {
+    fragment.appendChild(renderCard(offers[i]));
+  }
+  similarListElement.appendChild(fragment);
+};
+fillBlockCard();
