@@ -30,7 +30,11 @@ const similarListElement = fieldMap.querySelector(`.map__pins`);
 const mapWidth = similarListElement.offsetWidth;
 
 const getRandomNumber = function (min, max) {
-  return Math.floor(min + Math.random() * (max - min));
+  return Math.floor(min + Math.random() * (max + 1 - min));
+};
+
+const getRandomVariant = function (data) {
+  return data.filter(() => Math.random() < 0.5);
 };
 
 const makeMapActive = function () {
@@ -55,9 +59,9 @@ const createOffersMock = function () {
         "guests": getRandomNumber(guests.min, guests.max),
         "checkin": CHECKIN[getRandomNumber(0, CHECKIN.length)],
         "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length)],
-        "features": FEATURES.filter(() => Math.random() < 0.5),
+        "features": getRandomVariant(FEATURES),
         "description": `Описание ${index}`,
-        "photos": PHOTOS.filter(() => Math.random() < 0.5)
+        "photos": getRandomVariant(PHOTOS)
       },
       "location": {
         "x": locationX,
@@ -67,7 +71,7 @@ const createOffersMock = function () {
   };
 
   let offersMock = [];
-  for (let i = 1; i < NUMBER_OFFERS; i++) {
+  for (let i = 1; i <= NUMBER_OFFERS; i++) {
     offersMock.push(createOffer(i));
   }
   return offersMock;
@@ -82,7 +86,6 @@ const renderPinOffer = function (offer) {
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
 
   return pinOfferElement;
-
 };
 
 const fillBlockOffer = function () {
