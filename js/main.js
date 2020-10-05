@@ -94,16 +94,7 @@ const renderPinOffer = function (offer) {
   return pinOfferElement;
 };
 
-const fillBlockOffer = function () {
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < offers.length; i++) {
-    fragment.appendChild(renderPinOffer(offers[i]));
-  }
-  similarListElement.appendChild(fragment);
-};
-fillBlockOffer();
-
-const renderCard = function (card) {
+const renderCard = function (offer) {
   const cardElement = cardTemplate.cloneNode(true);
   let featuresList = cardElement.querySelector(`.popup__features`);
   let imagesList = cardElement.querySelector(`.popup__photos`);
@@ -129,24 +120,26 @@ const renderCard = function (card) {
       photo.classList.add(`popup__photo`);
     });
   };
-  featuresList = createFeaturesList(card.offer.features);
-  imagesList = createPhotoList(card.offer.photos);
-  cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
-  cardElement.querySelector(`.popup__text--address`).textContent = card.offer.address;
-  cardElement.querySelector(`.popup__text--price`).textContent = `${card.offer.price} ₽/ночь`;
-  cardElement.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
-  cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${card.offer.checkin}, выезд до ${card.offer.checkout}`;
-  cardElement.querySelector(`.popup__type`).textContent = card.offer.type;
-  cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
-  cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
+
+  featuresList = createFeaturesList(offer.offer.features);
+  imagesList = createPhotoList(offer.offer.photos);
+  cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, offer.author.avatar);
+  cardElement.querySelector(`.popup__title`).textContent = offer.offer.title;
+  cardElement.querySelector(`.popup__text--address`).textContent = offer.offer.address;
+  cardElement.querySelector(`.popup__text--price`).textContent = `${offer.offer.price} ₽/ночь`;
+  cardElement.querySelector(`.popup__text--capacity`).textContent = `${offer.offer.rooms} комнаты для ${offer.offer.guests} гостей`;
+  cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${offer.offer.checkin}, выезд до ${offer.offer.checkout}`;
+  cardElement.querySelector(`.popup__type`).textContent = offer.offer.type;
+  cardElement.querySelector(`.popup__description`).textContent = offer.offer.description;
   return cardElement;
 };
 
-const fillBlockCard = function () {
+const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
+    fragment.appendChild(renderPinOffer(offers[i]));
     fragment.appendChild(renderCard(offers[i]));
   }
   similarListElement.appendChild(fragment);
 };
-fillBlockCard();
+fillBlockOffer();
