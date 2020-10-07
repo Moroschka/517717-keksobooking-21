@@ -95,13 +95,16 @@ const renderPinOffer = function (offer) {
   return pinOfferElement;
 };
 
+
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
   const featuresList = cardElement.querySelector(`.popup__features`);
   const imagesList = cardElement.querySelector(`.popup__photos`);
 
-  const createFeaturesList = function (features) {
-    featuresList.innerHTML = ``;
+  featuresList.innerHTML = ``;
+  imagesList.innerHTML = ``;
+
+  const fillFeaturesList = function (features) {
     features.forEach(function (feature, i) {
       feature = document.createElement(`li`);
       feature.setAttribute(`class`, `popup__feature popup__feature--${features[i]}`);
@@ -109,8 +112,7 @@ const renderCard = function (card) {
     });
   };
 
-  const createPhotoList = function (images) {
-    imagesList.innerHTML = ``;
+  const fillImagesList = function (images) {
     images.forEach(function (photo, i) {
       photo = new Image(45, 40);
       photo.src = `${images[i]}`;
@@ -120,8 +122,8 @@ const renderCard = function (card) {
     });
   };
 
-  createFeaturesList(card.offer.features);
-  createPhotoList(card.offer.photos);
+  fillFeaturesList(card.offer.features);
+  fillImagesList(card.offer.photos);
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
   cardElement.querySelector(`.popup__text--address`).textContent = card.offer.address;
   cardElement.querySelector(`.popup__text--price`).textContent = `${card.offer.price} ₽/ночь`;
@@ -145,9 +147,7 @@ fillBlockOffer();
 
 const fillBlockCard = function () {
   const fragment = document.createDocumentFragment();
-  for (let i = offers.length - 1; i >= 0; i--) {
-    fragment.appendChild(renderCard(offers[i]));
-  }
+  fragment.appendChild(renderCard(offers[0]));
   similarListElement.appendChild(fragment);
 };
 fillBlockCard();
