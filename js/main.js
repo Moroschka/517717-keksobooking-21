@@ -97,33 +97,31 @@ const renderPinOffer = function (offer) {
 
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
-  let featuresList = cardElement.querySelector(`.popup__features`);
-  let imagesList = cardElement.querySelector(`.popup__photos`);
+  const featuresList = cardElement.querySelector(`.popup__features`);
+  const imagesList = cardElement.querySelector(`.popup__photos`);
 
   const createFeaturesList = function (features) {
     featuresList.innerHTML = ``;
     features.forEach(function (feature, i) {
       feature = document.createElement(`li`);
-      featuresList.append(feature);
       feature.setAttribute(`class`, `popup__feature popup__feature--${features[i]}`);
+      featuresList.append(feature);
     });
   };
 
   const createPhotoList = function (images) {
     imagesList.innerHTML = ``;
     images.forEach(function (photo, i) {
-      photo = document.createElement(`img`);
-      imagesList.append(photo);
-      photo.setAttribute(`src`, images[i]);
-      photo.setAttribute(`width`, `45`);
-      photo.setAttribute(`height`, `40`);
-      photo.setAttribute(`alt`, `Фотография жилья`);
+      photo = new Image(45, 40);
+      photo.src = `${images[i]}`;
+      photo.alt = `Фотография жилья`;
       photo.classList.add(`popup__photo`);
+      imagesList.append(photo);
     });
   };
 
-  featuresList = createFeaturesList(card.offer.features);
-  imagesList = createPhotoList(card.offer.photos);
+  createFeaturesList(card.offer.features);
+  createPhotoList(card.offer.photos);
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
   cardElement.querySelector(`.popup__text--address`).textContent = card.offer.address;
   cardElement.querySelector(`.popup__text--price`).textContent = `${card.offer.price} ₽/ночь`;
@@ -140,8 +138,16 @@ const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
     fragment.appendChild(renderPinOffer(offers[i]));
-    fragment.appendChild(renderCard(offers[i]));
   }
   similarListElement.appendChild(fragment);
 };
 fillBlockOffer();
+
+const fillBlockCard = function () {
+  const fragment = document.createDocumentFragment();
+  for (let i = offers.length - 1; i >= 0; i--) {
+    fragment.appendChild(renderCard(offers[i]));
+  }
+  similarListElement.appendChild(fragment);
+};
+fillBlockCard();
