@@ -31,10 +31,15 @@ const rangeY = {
 };
 const pinOfferTemplate = document.querySelector(`#pin`).content;
 const fieldMap = document.querySelector(`.map`);
+//const filters = fieldMap.querySelector(`.map__filters`);
+const mapPinControl = fieldMap.querySelector(`.map__pin--main`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
 const mapWidth = similarListElement.offsetWidth;
 const cardTemplate = document.querySelector(`#card`).content;
-
+const noticeForm = document.querySelector(`.ad-form`);
+const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
+const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
+const fieldAddress = noticeForm.querySelector(`#address`);
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
 };
@@ -42,11 +47,6 @@ const getRandomNumber = function (min, max) {
 const getRandomVariant = function (data) {
   return data.filter(() => Math.random() < 0.5);
 };
-
-const makeMapActive = function () {
-  document.querySelector(`.map`).classList.remove(`map--faded`);
-};
-makeMapActive();
 
 const createOffersMock = function () {
   const createOffer = function (index) {
@@ -82,6 +82,7 @@ const createOffersMock = function () {
   }
   return offersMock;
 };
+
 const offers = createOffersMock();
 
 const renderPinOffer = function (offer) {
@@ -94,42 +95,42 @@ const renderPinOffer = function (offer) {
   return pinOfferElement;
 };
 
+
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
-  let featuresList = cardElement.querySelector(`.popup__features`);
-  let imagesList = cardElement.querySelector(`.popup__photos`);
+  const featuresList = cardElement.querySelector(`.popup__features`);
+  const imagesList = cardElement.querySelector(`.popup__photos`);
 
-  const createFeaturesList = function (features) {
-    featuresList.innerHTML = ``;
+  featuresList.innerHTML = ``;
+  imagesList.innerHTML = ``;
+
+  const fillFeaturesList = function (features) {
     features.forEach(function (feature, i) {
       feature = document.createElement(`li`);
-      featuresList.append(feature);
       feature.setAttribute(`class`, `popup__feature popup__feature--${features[i]}`);
+      featuresList.append(feature);
     });
   };
 
-  const createPhotoList = function (images) {
-    imagesList.innerHTML = ``;
+  const fillImagesList = function (images) {
     images.forEach(function (photo, i) {
-      photo = document.createElement(`img`);
-      imagesList.append(photo);
-      photo.setAttribute(`src`, images[i]);
-      photo.setAttribute(`width`, `45`);
-      photo.setAttribute(`height`, `40`);
-      photo.setAttribute(`alt`, `Фотография жилья`);
+      photo = new Image(45, 40);
+      photo.src = `${images[i]}`;
+      photo.alt = `Фотография жилья`;
       photo.classList.add(`popup__photo`);
+      imagesList.append(photo);
     });
   };
 
-  featuresList = createFeaturesList(card.offer.features);
-  imagesList = createPhotoList(card.offer.photos);
-  cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
+  fillFeaturesList(card.offer.features);
+  fillImagesList(card.offer.photos);
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
   cardElement.querySelector(`.popup__text--address`).textContent = card.offer.address;
   cardElement.querySelector(`.popup__text--price`).textContent = `${card.offer.price} ₽/ночь`;
   cardElement.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
   cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${card.offer.checkin}, выезд до ${card.offer.checkout}`;
   cardElement.querySelector(`.popup__type`).textContent = card.offer.type;
+  cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
   cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
 
   return cardElement;
@@ -139,8 +140,62 @@ const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
     fragment.appendChild(renderPinOffer(offers[i]));
-    fragment.appendChild(renderCard(offers[i]));
   }
   similarListElement.appendChild(fragment);
 };
+/*
 fillBlockOffer();
+
+const fillBlockCard = function () {
+  const fragment = document.createDocumentFragment();
+  fragment.appendChild(renderCard(offers[0]));
+  similarListElement.appendChild(fragment);
+};
+*/
+
+const getFormActive = function () {
+  fieldMap.classList.remove(`map--faded`);
+  fillBlockOffer();
+}
+
+const fillAddressField = function () {
+  fieldAddress.value = offers[0].address;
+}
+
+const getElementFormInactive = function () {
+  elementsForm.forEach(function(elementForm) {
+    elementForm.setAttribute(`disabled`, `disabled`);
+  });
+  elementFormInput.setAttribute(`disabled`, `disabled`);
+};
+getElementFormInactive();
+
+const getElementFormActive = function () {
+  elementsForm.forEach(function(elementForm) {
+    elementForm.removeAttribute(`disabled`);
+  });
+  elementFormInput.removeAttribute(`disabled`);
+  noticeForm.classList.remove(`ad-form--disabled`);
+};
+
+mapPinControl.addEventListener(`mousedown`, function(evt) {
+  evt.preventDefault();
+  if (evt.button === 0) {
+    getElementFormActive();
+    getFormActive();
+    fillAddressField();
+  }  
+});
+
+mapPinControl.addEventListener(`keydown`, function (evt) {
+  if (evt.key === `Enter`) {
+    getElementFormActive();
+    getFormActive(0);
+    fillAddressField();
+  }
+});
+
+
+
+
+
