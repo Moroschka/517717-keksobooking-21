@@ -13,6 +13,8 @@ const TYPE_HOUSING = {
 };
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
+const IMAGE_WIDTH = 45;
+const IMAGE_HEIGHT = 40;
 const price = {
   min: 5000,
   max: 10000
@@ -117,7 +119,7 @@ const renderCard = function (card) {
   const createImagesList = function (images) {
     const imagesFragment = document.createDocumentFragment();
     images.forEach(function (img, i) {
-      const photoElement = new Image(45, 40);
+      const photoElement = new Image(IMAGE_WIDTH, IMAGE_HEIGHT);
       photoElement.src = `${images[i]}`;
       photoElement.alt = `Фотография жилья`;
       photoElement.classList.add(`popup__photo`);
