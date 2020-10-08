@@ -104,26 +104,30 @@ const renderCard = function (card) {
   featuresList.innerHTML = ``;
   imagesList.innerHTML = ``;
 
-  const fillFeaturesList = function (features) {
+  const createFeaturesList = function (features) {
+    const featuresFragment = document.createDocumentFragment();
     features.forEach(function (feature, i) {
       feature = document.createElement(`li`);
       feature.setAttribute(`class`, `popup__feature popup__feature--${features[i]}`);
-      featuresList.append(feature);
+      featuresFragment.append(feature);
     });
+    return featuresFragment;
   };
 
-  const fillImagesList = function (images) {
-    images.forEach(function (photo, i) {
-      photo = new Image(45, 40);
-      photo.src = `${images[i]}`;
-      photo.alt = `Фотография жилья`;
-      photo.classList.add(`popup__photo`);
-      imagesList.append(photo);
+  const createImagesList = function (images) {
+    const imagesFragment = document.createDocumentFragment();
+    images.forEach(function (img, i) {
+      const photoElement = new Image(45, 40);
+      photoElement.src = `${images[i]}`;
+      photoElement.alt = `Фотография жилья`;
+      photoElement.classList.add(`popup__photo`);
+      imagesFragment.append(photoElement);
     });
+    return imagesFragment;
   };
 
-  fillFeaturesList(card.offer.features);
-  fillImagesList(card.offer.photos);
+  featuresList.append(createFeaturesList(card.offer.features));
+  imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
   cardElement.querySelector(`.popup__text--address`).textContent = card.offer.address;
   cardElement.querySelector(`.popup__text--price`).textContent = `${card.offer.price} ₽/ночь`;
@@ -146,8 +150,6 @@ const fillBlockOffer = function () {
 fillBlockOffer();
 
 const fillBlockCard = function () {
-  const fragment = document.createDocumentFragment();
-  fragment.appendChild(renderCard(offers[0]));
-  similarListElement.appendChild(fragment);
+  similarListElement.appendChild(renderCard(offers[0]));
 };
 fillBlockCard();
