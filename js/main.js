@@ -13,6 +13,8 @@ const TYPE_HOUSING = {
 };
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
+const IMAGE_WIDTH = 45;
+const IMAGE_HEIGHT = 40;
 const price = {
   min: 5000,
   max: 10000
@@ -82,6 +84,7 @@ const createOffersMock = function () {
   }
   return offersMock;
 };
+
 const offers = createOffersMock();
 
 const renderPinOffer = function (offer) {
@@ -94,42 +97,46 @@ const renderPinOffer = function (offer) {
   return pinOfferElement;
 };
 
+
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
-  let featuresList = cardElement.querySelector(`.popup__features`);
-  let imagesList = cardElement.querySelector(`.popup__photos`);
+  const featuresList = cardElement.querySelector(`.popup__features`);
+  const imagesList = cardElement.querySelector(`.popup__photos`);
+
+  featuresList.innerHTML = ``;
+  imagesList.innerHTML = ``;
 
   const createFeaturesList = function (features) {
-    featuresList.innerHTML = ``;
+    const featuresFragment = document.createDocumentFragment();
     features.forEach(function (feature, i) {
       feature = document.createElement(`li`);
-      featuresList.append(feature);
       feature.setAttribute(`class`, `popup__feature popup__feature--${features[i]}`);
+      featuresFragment.append(feature);
     });
+    return featuresFragment;
   };
 
-  const createPhotoList = function (images) {
-    imagesList.innerHTML = ``;
-    images.forEach(function (photo, i) {
-      photo = document.createElement(`img`);
-      imagesList.append(photo);
-      photo.setAttribute(`src`, images[i]);
-      photo.setAttribute(`width`, `45`);
-      photo.setAttribute(`height`, `40`);
-      photo.setAttribute(`alt`, `Фотография жилья`);
-      photo.classList.add(`popup__photo`);
+  const createImagesList = function (images) {
+    const imagesFragment = document.createDocumentFragment();
+    images.forEach(function (img, i) {
+      const photoElement = new Image(IMAGE_WIDTH, IMAGE_HEIGHT);
+      photoElement.src = `${images[i]}`;
+      photoElement.alt = `Фотография жилья`;
+      photoElement.classList.add(`popup__photo`);
+      imagesFragment.append(photoElement);
     });
+    return imagesFragment;
   };
 
-  featuresList = createFeaturesList(card.offer.features);
-  imagesList = createPhotoList(card.offer.photos);
-  cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
+  featuresList.append(createFeaturesList(card.offer.features));
+  imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
   cardElement.querySelector(`.popup__text--address`).textContent = card.offer.address;
   cardElement.querySelector(`.popup__text--price`).textContent = `${card.offer.price} ₽/ночь`;
   cardElement.querySelector(`.popup__text--capacity`).textContent = `${card.offer.rooms} комнаты для ${card.offer.guests} гостей`;
   cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${card.offer.checkin}, выезд до ${card.offer.checkout}`;
   cardElement.querySelector(`.popup__type`).textContent = card.offer.type;
+  cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
   cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
 
   return cardElement;
@@ -139,8 +146,12 @@ const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
     fragment.appendChild(renderPinOffer(offers[i]));
-    fragment.appendChild(renderCard(offers[i]));
   }
   similarListElement.appendChild(fragment);
 };
 fillBlockOffer();
+
+const fillBlockCard = function () {
+  similarListElement.appendChild(renderCard(offers[0]));
+};
+fillBlockCard();
