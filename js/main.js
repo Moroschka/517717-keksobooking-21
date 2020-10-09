@@ -31,9 +31,9 @@ const rangeY = {
   min: 130,
   max: 630
 };
+
 const pinOfferTemplate = document.querySelector(`#pin`).content;
 const fieldMap = document.querySelector(`.map`);
-//const filters = fieldMap.querySelector(`.map__filters`);
 const mapPinControl = fieldMap.querySelector(`.map__pin--main`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
 const mapWidth = similarListElement.offsetWidth;
@@ -162,10 +162,6 @@ const getFormActive = function () {
   fillBlockOffer();
 }
 
-const fillAddressField = function () {
-  fieldAddress.value = offers[0].address;
-}
-
 const getElementFormInactive = function () {
   elementsForm.forEach(function(elementForm) {
     elementForm.setAttribute(`disabled`, `disabled`);
@@ -187,19 +183,46 @@ mapPinControl.addEventListener(`mousedown`, function(evt) {
   if (evt.button === 0) {
     getElementFormActive();
     getFormActive();
-    fillAddressField();
-  }  
+  }
+
+  let startCoordinates = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  fieldAddress.value = `${startCoordinates.x}, ${startCoordinates.y}`;
+
+  const onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    let shift = {
+      x: startCoordinates.x - moveEvt.clientX,
+      y: startCoordinates.y - moveEvt.clientY
+    };
+
+    startCoordinates = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    mapPinControl.style.top = (mapPinControl.offsetTop - shift.y) + 'px';
+    mapPinControl.style.left = (mapPinControl.offsetLeft - shift.x) + 'px';
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 });
 
 mapPinControl.addEventListener(`keydown`, function (evt) {
   if (evt.key === `Enter`) {
     getElementFormActive();
     getFormActive(0);
-    fillAddressField();
   }
 });
-
-
-
-
-
