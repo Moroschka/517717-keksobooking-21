@@ -11,12 +11,10 @@ const TYPE_HOUSING = {
   "house": `Дом`,
   "palace": `Дворец`
 };
-
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
-
 const price = {
   min: 5000,
   max: 10000
@@ -33,16 +31,13 @@ const rangeY = {
   min: 130,
   max: 630
 };
-
 const pinOfferTemplate = document.querySelector(`#pin`).content;
 const mapWidth = similarListElement.offsetWidth;
 const cardTemplate = document.querySelector(`#card`).content;
 const similarListElement = fieldMap.querySelector(`.map__pins`);
-
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
 };
-
 const getRandomVariant = function (data) {
   return data.filter(() => Math.random() < 0.5);
 };
@@ -92,35 +87,27 @@ const createOffersMock = function () {
       }
     };
   };
-
   let offersMock = [];
   for (let i = 1; i <= NUMBER_OFFERS; i++) {
     offersMock.push(createOffer(i));
   }
   return offersMock;
 };
-
 const offers = createOffersMock();
-
 const renderPinOffer = function (offer) {
   const pinOfferElement = pinOfferTemplate.cloneNode(true);
   pinOfferElement.querySelector(`.map__pin`).style.left = (offer.location.x + PIN_WIDTH / 2) + `px`;
   pinOfferElement.querySelector(`.map__pin`).style.top = (offer.location.y + PIN_HEIGHT) + `px`;
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`src`, offer.author.avatar);
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
-
   return pinOfferElement;
 };
-
-
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
   const featuresList = cardElement.querySelector(`.popup__features`);
   const imagesList = cardElement.querySelector(`.popup__photos`);
-
   featuresList.innerHTML = ``;
   imagesList.innerHTML = ``;
-
   const createFeaturesList = function (features) {
     const featuresFragment = document.createDocumentFragment();
     features.forEach(function (feature, i) {
@@ -130,7 +117,6 @@ const renderCard = function (card) {
     });
     return featuresFragment;
   };
-
   const createImagesList = function (images) {
     const imagesFragment = document.createDocumentFragment();
     images.forEach(function (img, i) {
@@ -142,7 +128,6 @@ const renderCard = function (card) {
     });
     return imagesFragment;
   };
-
   featuresList.append(createFeaturesList(card.offer.features));
   imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
@@ -153,10 +138,8 @@ const renderCard = function (card) {
   cardElement.querySelector(`.popup__type`).textContent = card.offer.type;
   cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
   cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
-
   return cardElement;
 };
-
 const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
@@ -164,9 +147,7 @@ const fillBlockOffer = function () {
   }
   similarListElement.appendChild(fragment);
 };
-
 fillBlockOffer();
-
 const fillBlockCard = function () {
   similarListElement.appendChild(renderCard(offers[0]));
 };
