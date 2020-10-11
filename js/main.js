@@ -1,5 +1,5 @@
 'use strict';
-/*
+
 const NUMBER_OFFERS = 8;
 const CHECKIN = [`12:00`, `13:00`, `14:00`];
 const CHECKOUT = [`12:00`, `13:00`, `14:00`];
@@ -13,8 +13,12 @@ const TYPE_HOUSING = {
 };
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
+/*
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
+*/
+const PIN_CONTROL_WIDTH = 62;
+const PIN_CONTROL_HEIGHT = 62;
 const price = {
   min: 5000,
   max: 10000
@@ -32,18 +36,9 @@ const rangeY = {
   max: 630
 };
 const pinOfferTemplate = document.querySelector(`#pin`).content;
-const mapWidth = similarListElement.offsetWidth;
+/*
 const cardTemplate = document.querySelector(`#card`).content;
-const similarListElement = fieldMap.querySelector(`.map__pins`);
-const getRandomNumber = function (min, max) {
-  return Math.floor(min + Math.random() * (max + 1 - min));
-};
-const getRandomVariant = function (data) {
-  return data.filter(() => Math.random() < 0.5);
-};
 */
-const PIN_CONTROL_WIDTH = 62;
-const PIN_CONTROL_HEIGHT = 62;
 const fieldMap = document.querySelector(`.map`);
 const mapPinControl = fieldMap.querySelector(`.map__pin--main`);
 const noticeForm = document.querySelector(`.ad-form`);
@@ -58,8 +53,16 @@ const roomValues = {
   "3": [`1`, `2`, `3`],
   "100": [`0`]
 };
+const similarListElement = fieldMap.querySelector(`.map__pins`);
+const mapWidth = similarListElement.offsetWidth;
 
-/*
+const getRandomNumber = function (min, max) {
+  return Math.floor(min + Math.random() * (max + 1 - min));
+};
+const getRandomVariant = function (data) {
+  return data.filter(() => Math.random() < 0.5);
+};
+
 const createOffersMock = function () {
   const createOffer = function (index) {
     const locationX = getRandomNumber(0, mapWidth);
@@ -94,6 +97,7 @@ const createOffersMock = function () {
   return offersMock;
 };
 const offers = createOffersMock();
+
 const renderPinOffer = function (offer) {
   const pinOfferElement = pinOfferTemplate.cloneNode(true);
   pinOfferElement.querySelector(`.map__pin`).style.left = (offer.location.x + PIN_WIDTH / 2) + `px`;
@@ -102,6 +106,7 @@ const renderPinOffer = function (offer) {
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
   return pinOfferElement;
 };
+/*
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
   const featuresList = cardElement.querySelector(`.popup__features`);
@@ -128,6 +133,7 @@ const renderCard = function (card) {
     });
     return imagesFragment;
   };
+
   featuresList.append(createFeaturesList(card.offer.features));
   imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
@@ -140,6 +146,7 @@ const renderCard = function (card) {
   cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
   return cardElement;
 };
+*/
 const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
@@ -147,14 +154,14 @@ const fillBlockOffer = function () {
   }
   similarListElement.appendChild(fragment);
 };
-fillBlockOffer();
+/*
 const fillBlockCard = function () {
   similarListElement.appendChild(renderCard(offers[0]));
 };
 */
-
 const getFormActive = function () {
   fieldMap.classList.remove(`map--faded`);
+  fillBlockOffer();
 };
 
 const getElementFormInactive = function () {
@@ -222,3 +229,4 @@ const compareRoomsAndCapacity = function () {
 roomsNumber.addEventListener(`change`, function () {
   compareRoomsAndCapacity();
 });
+
