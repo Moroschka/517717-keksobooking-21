@@ -1,5 +1,5 @@
 'use strict';
-
+/*
 const NUMBER_OFFERS = 8;
 const CHECKIN = [`12:00`, `13:00`, `14:00`];
 const CHECKOUT = [`12:00`, `13:00`, `14:00`];
@@ -11,10 +11,12 @@ const TYPE_HOUSING = {
   "house": `Дом`,
   "palace": `Дворец`
 };
+
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
+
 const price = {
   min: 5000,
   max: 10000
@@ -33,15 +35,10 @@ const rangeY = {
 };
 
 const pinOfferTemplate = document.querySelector(`#pin`).content;
-const fieldMap = document.querySelector(`.map`);
-const mapPinControl = fieldMap.querySelector(`.map__pin--main`);
-const similarListElement = fieldMap.querySelector(`.map__pins`);
 const mapWidth = similarListElement.offsetWidth;
 const cardTemplate = document.querySelector(`#card`).content;
-const noticeForm = document.querySelector(`.ad-form`);
-const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
-const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
-const fieldAddress = noticeForm.querySelector(`#address`);
+const similarListElement = fieldMap.querySelector(`.map__pins`);
+
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
 };
@@ -49,7 +46,25 @@ const getRandomNumber = function (min, max) {
 const getRandomVariant = function (data) {
   return data.filter(() => Math.random() < 0.5);
 };
+*/
+const PIN_CONTROL_WIDTH = 62;
+const PIN_CONTROL_HEIGHT = 62;
+const fieldMap = document.querySelector(`.map`);
+const mapPinControl = fieldMap.querySelector(`.map__pin--main`);
+const noticeForm = document.querySelector(`.ad-form`);
+const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
+const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
+const fieldAddress = noticeForm.querySelector(`#address`);
+const roomsNumber = noticeForm.querySelector(`#room_number`);
+const capacity = noticeForm.querySelector(`#capacity`);
+const roomValues = {
+  "1": [`1`],
+  "2": [`1`, `2`],
+  "3": [`1`, `2`, `3`],
+  "100": [`0`]
+};
 
+/*
 const createOffersMock = function () {
   const createOffer = function (index) {
     const locationX = getRandomNumber(0, mapWidth);
@@ -149,7 +164,7 @@ const fillBlockOffer = function () {
   }
   similarListElement.appendChild(fragment);
 };
-/*
+
 fillBlockOffer();
 
 const fillBlockCard = function () {
@@ -159,70 +174,70 @@ const fillBlockCard = function () {
 
 const getFormActive = function () {
   fieldMap.classList.remove(`map--faded`);
-  fillBlockOffer();
-}
+};
 
 const getElementFormInactive = function () {
-  elementsForm.forEach(function(elementForm) {
-    elementForm.setAttribute(`disabled`, `disabled`);
+  elementsForm.forEach(function (elementForm) {
+    elementForm.disabled = true;
   });
-  elementFormInput.setAttribute(`disabled`, `disabled`);
+  elementFormInput.disabled = true;
 };
 getElementFormInactive();
 
 const getElementFormActive = function () {
-  elementsForm.forEach(function(elementForm) {
-    elementForm.removeAttribute(`disabled`);
+  elementsForm.forEach(function (elementForm) {
+    elementForm.disabled = false;
   });
-  elementFormInput.removeAttribute(`disabled`);
+  elementFormInput.disabled = false;
   noticeForm.classList.remove(`ad-form--disabled`);
 };
 
-mapPinControl.addEventListener(`mousedown`, function(evt) {
+let getStartCoordinates = function (element) {
+  const coordinates = {
+    "x": Math.floor(parseInt(element.style.left, 10) + PIN_CONTROL_WIDTH / 2),
+    "y": Math.floor(parseInt(element.style.top, 10) + PIN_CONTROL_HEIGHT / 2)
+  };
+  return `${coordinates.x}, ${coordinates.y}`;
+};
+
+const transferAddressCoordinates = function () {
+  fieldAddress.value = getStartCoordinates(mapPinControl);
+};
+transferAddressCoordinates();
+
+mapPinControl.addEventListener(`mousedown`, function (evt) {
   evt.preventDefault();
   if (evt.button === 0) {
     getElementFormActive();
     getFormActive();
   }
-
-  let startCoordinates = {
-    x: evt.clientX,
-    y: evt.clientY
-  };
-
-  fieldAddress.value = `${startCoordinates.x}, ${startCoordinates.y}`;
-
-  const onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
-
-    let shift = {
-      x: startCoordinates.x - moveEvt.clientX,
-      y: startCoordinates.y - moveEvt.clientY
-    };
-
-    startCoordinates = {
-      x: moveEvt.clientX,
-      y: moveEvt.clientY
-    };
-
-    mapPinControl.style.top = (mapPinControl.offsetTop - shift.y) + 'px';
-    mapPinControl.style.left = (mapPinControl.offsetLeft - shift.x) + 'px';
-  };
-
-  var onMouseUp = function (upEvt) {
-    upEvt.preventDefault();
-
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-  };
-
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
 });
 
 mapPinControl.addEventListener(`keydown`, function (evt) {
   if (evt.key === `Enter`) {
     getElementFormActive();
-    getFormActive(0);
+    getFormActive();
+    transferAddressCoordinates();
   }
+});
+
+const makeCapacityInactive = function () {
+  for (let i = 0; i < capacity.length; i++) {
+    if (capacity[i].value !== `${roomsNumber.value}`) {
+      capacity[i].hidden = true;
+    }
+  }
+};
+makeCapacityInactive();
+
+const compareRoomsAndCapacity = function () {
+  const capacityOptions = Array.from(capacity.options);
+  capacityOptions.forEach(function (element) {
+    element.hidden = !roomValues[roomsNumber.value].includes(element.value);
+    element.selected = !element.hidden;
+  });
+};
+
+roomsNumber.addEventListener(`change`, function () {
+  compareRoomsAndCapacity();
 });
