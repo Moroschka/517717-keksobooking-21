@@ -205,7 +205,6 @@ mapPinControl.addEventListener(`keydown`, function (evt) {
   if (evt.key === `Enter`) {
     getElementFormActive();
     getFormActive();
-    transferAddressCoordinates();
   }
 });
 
