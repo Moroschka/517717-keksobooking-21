@@ -208,15 +208,6 @@ mapPinControl.addEventListener(`keydown`, function (evt) {
   }
 });
 
-const makeCapacityInactive = function () {
-  for (let i = 0; i < capacity.length; i++) {
-    if (capacity[i].value !== `${roomsNumber.value}`) {
-      capacity[i].hidden = true;
-    }
-  }
-};
-makeCapacityInactive();
-
 const compareRoomsAndCapacity = function () {
   const capacityOptions = Array.from(capacity.options);
   capacityOptions.forEach(function (element) {
@@ -229,3 +220,11 @@ roomsNumber.addEventListener(`change`, function () {
   compareRoomsAndCapacity();
 });
 
+capacity.addEventListener(`change`, function () {
+  if (capacity.value > roomsNumber.value) {
+    capacity.setCustomValidity(`Количество гостей должно быть не более ${roomsNumber.value}!`);
+  } else {
+    capacity.setCustomValidity(``);
+  }
+  capacity.reportValidity();
+});
