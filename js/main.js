@@ -272,9 +272,7 @@ const compareRoomsAndCapacity = function () {
     element.selected = !element.hidden;
   });
 };
-roomsSelect.addEventListener(`change`, function () {
-  compareRoomsAndCapacity();
-});
+roomsSelect.addEventListener(`change`, compareRoomsAndCapacity);
 
 const onCapacityChange = function () {
   if (capacitySelect.value && roomsSelect.value && capacitySelect.value > roomsSelect.value) {
