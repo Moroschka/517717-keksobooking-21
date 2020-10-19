@@ -14,12 +14,16 @@ const TYPE_HOUSING = {
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
 const MOUSE_BUTTON_LEFT = 0;
-/*
+const MIN_TITLE_LENGTH = 30;
+const MAX_TITLE_LENGTH = 100;
+const MAX_PRICE = 1000000;
+
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
-*/
-const PIN_CONTROL_WIDTH = 62;
-const PIN_CONTROL_HEIGHT = 62;
+
+const PIN_CONTROL_WIDTH = 65;
+const PIN_CONTROL_HEIGHT = 65;
+const PIN_CONTROL_ARROW = 22;
 const price = {
   min: 5000,
   max: 10000
@@ -37,28 +41,35 @@ const rangeY = {
   max: 630
 };
 const pinOfferTemplate = document.querySelector(`#pin`).content;
-/*
+
 const cardTemplate = document.querySelector(`#card`).content;
-*/
+
 const fieldMap = document.querySelector(`.map`);
 const mapPinControl = fieldMap.querySelector(`.map__pin`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
+const mapCards = fieldMap.querySelectorAll(`.map__card`);
 const mapPinContolCenterX = PIN_CONTROL_WIDTH / 2;
 const mapPinControlCenterY = PIN_CONTROL_HEIGHT / 2;
 const noticeForm = document.querySelector(`.ad-form`);
+const closePopup = noticeForm.querySelector(`.popup__close`)
 const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
 const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
+const titleInput = noticeForm.querySelector(`#title`);
+const typeSelect = noticeForm.querySelector(`#type`);
+const priceInput = noticeForm.querySelector(`#price`);
+const typePrice = {
+  "bungalow": 0,
+  "flat": 1000,
+  "house": 5000,
+  "palace": 10000
+}
+const time = noticeForm.querySelector(`.ad-form__element--time`);
+const timeOut = noticeForm.querySelector(`#timeout`);
+const timeIn = noticeForm.querySelector(`#timein`);
 const fieldAddress = noticeForm.querySelector(`#address`);
 const roomsNumber = noticeForm.querySelector(`#room_number`);
 const capacity = noticeForm.querySelector(`#capacity`);
 const mapWidth = similarListElement.offsetWidth;
-const limits = fieldMap.getBoundingClientRect();
-const limitsMapBlock = {
-  top: 0,
-  right: limits.width - mapPinContolCenterX,
-  bottom: limits.height - PIN_CONTROL_HEIGHT,
-  left: -mapPinContolCenterX
-};
 
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -111,7 +122,7 @@ const renderPinOffer = function (offer) {
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
   return pinOfferElement;
 };
-/*
+
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
   const featuresList = cardElement.querySelector(`.popup__features`);
@@ -138,7 +149,6 @@ const renderCard = function (card) {
     });
     return imagesFragment;
   };
-
   featuresList.append(createFeaturesList(card.offer.features));
   imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
@@ -151,7 +161,7 @@ const renderCard = function (card) {
   cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
   return cardElement;
 };
-*/
+
 const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
@@ -159,11 +169,40 @@ const fillBlockOffer = function () {
   }
   similarListElement.appendChild(fragment);
 };
-/*
-const fillBlockCard = function () {
-  similarListElement.appendChild(renderCard(offers[0]));
+
+const fillBlockCard = function (index) {
+  similarListElement.appendChild(renderCard(offers[index]));
 };
+
+const removeCard = function () {  
+  for (let i = 0; i < mapCards.length; i++) {
+    mapCards[i].remove();
+  }
+};
+
+const getCardOfPin = function () {
+  const mapPins = similarListElement.querySelectorAll(`.map__pin[type="button"]`);
+  for (let i = 0; i < mapPins.length; i++) {
+    mapPins[i].addEventListener("click", function() {
+      if (mapPins.length > 0) {
+        removeCard();
+      }
+      fillBlockCard(i);
+    });
+  }
+};
+
+/*const closePopupCard = function () {
+  const closePopup = fieldMap.querySelector(`.popup__close`);
+  if (mapCards.length > 0) {
+    closePopup.addEventListener(`click`, function() {
+      console.log(`this`);
+    });
+  }
+};
+closePopupCard();
 */
+
 const setFormActive = function () {
   fieldMap.classList.remove(`map--faded`);
 };
@@ -173,6 +212,7 @@ const setFormElementsInactive = function () {
     elementForm.disabled = true;
   });
   elementFormInput.disabled = true;
+  noticeForm.classList.add(`ad-form--disabled`);
 };
 setFormElementsInactive();
 
@@ -184,106 +224,95 @@ const setFormElementsActive = function () {
   noticeForm.classList.remove(`ad-form--disabled`);
 };
 
-let getStartCoordinates = function (element) {
+const getStartCoordinates = function (element, shift) {
   const coordinates = {
-    "x": Math.floor(parseInt(element.style.left, 10) + mapPinContolCenterX),
-    "y": Math.floor(parseInt(element.style.top, 10) + mapPinControlCenterY)
+    "x": Math.floor(parseInt(element.style.left, 10) - mapPinContolCenterX),
+    "y": Math.floor(parseInt(element.style.top, 10) - mapPinControlCenterY - shift)
   };
-  return `${coordinates.x}, ${coordinates.y}`;
+  fieldAddress.value = `${coordinates.x}, ${coordinates.y}`;
 };
 
-const transferAddressCoordinates = function () {
-  fieldAddress.value = getStartCoordinates(mapPinControl);
+const setFormActiveBlock = function () {
+  setFormActive();
+  setFormElementsActive();
+  fillBlockOffer();
+  getStartCoordinates(mapPinControl, 0);
+  getCardOfPin();
 };
-transferAddressCoordinates();
-
 
 mapPinControl.addEventListener(`mousedown`, function (evt) {
   evt.preventDefault();
   if (evt.button === MOUSE_BUTTON_LEFT) {
-    setFormActive();
-    setFormElementsActive();
-    fillBlockOffer();
+    setFormActiveBlock();
   }
 });
 
 mapPinControl.addEventListener(`keydown`, function (evt) {
   if (evt.key === `Enter`) {
-    setFormActive();
-    setFormElementsActive();
-    fillBlockOffer();
+    setFormActiveBlock();
   }
 });
-
 
 mapPinControl.addEventListener(`mousedown`, function (evt) {
   evt.preventDefault();
 
-  let startCoordinates = {
-    x: evt.clientX,
-    y: evt.clientY
-  };
-
-  const onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
-
-    let shift = {
-      x: startCoordinates.x - moveEvt.clientX,
-      y: startCoordinates.y - moveEvt.clientY
-    };
-
-    startCoordinates = {
-      x: moveEvt.clientX,
-      y: moveEvt.clientY
-    };
-
-    if ((mapPinControl.offsetLeft - shift.x) < limitsMapBlock.left) {
-      mapPinControl.style.left = limitsMapBlock.left + `px`;
-    } else if ((mapPinControl.offsetLeft - shift.x) > limitsMapBlock.right) {
-      mapPinControl.style.left = limitsMapBlock.right + `px`;
-    }
-
-    if ((mapPinControl.offsetTop - shift.y) < limitsMapBlock.top) {
-      mapPinControl.style.top = limitsMapBlock.top + `px`;
-    } else if ((mapPinControl.offsetTop - shift.y) > limitsMapBlock.bottom) {
-      mapPinControl.style.top = limitsMapBlock.bottom + `px`;
-    }
-
-    mapPinControl.style.left = (mapPinControl.offsetLeft - shift.x) + `px`;
-    mapPinControl.style.top = (mapPinControl.offsetTop - shift.y) + `px`;
-
-    fieldAddress.value = getStartCoordinates(mapPinControl);
-  };
-
-  const onMouseUp = function (upEvt) {
-    upEvt.preventDefault();
-
-    document.removeEventListener(`mousemove`, onMouseMove);
-    document.removeEventListener(`mouseup`, onMouseUp);
-  };
+  let shiftX = evt.clientX - mapPinControl.getBoundingClientRect().left;
+  let shiftY = evt.clientY - mapPinControl.getBoundingClientRect().top;
 
   document.addEventListener(`mousemove`, onMouseMove);
   document.addEventListener(`mouseup`, onMouseUp);
+
+  function onMouseMove(moveEvt) {
+    let newLeft = moveEvt.clientX - shiftX - fieldMap.getBoundingClientRect().left;
+    let newTop = moveEvt.clientY - shiftY - fieldMap.getBoundingClientRect().top;
+
+    if (newLeft < 0) {
+      newLeft = 0 - mapPinContolCenterX;
+    }
+
+    if (newTop < 0) {
+      newTop = 0;
+    }
+
+    let rightEdge = fieldMap.offsetWidth - mapPinContolCenterX;
+    if (newLeft > rightEdge) {
+      newLeft = rightEdge;
+    }
+
+    let bottomEdge = fieldMap.offsetHeight - mapPinControl.offsetHeight;
+    if (newTop > bottomEdge) {
+      newTop = bottomEdge;
+    }
+
+    mapPinControl.style.left = newLeft + `px`;
+    mapPinControl.style.top = newTop + `px`;
+
+    getStartCoordinates(mapPinControl, PIN_CONTROL_ARROW);
+  }
+
+  function onMouseUp() {
+    document.removeEventListener(`mouseup`, onMouseUp);
+    document.removeEventListener(`mousemove`, onMouseMove);
+  }
+});
+
+mapPinControl.addEventListener(`dragstart`, function () {
+  return false;
 });
 
 const compareRoomsAndCapacity = function () {
   let capacityOptions = capacity.options;
   let roomsNumberValue = roomsNumber.value;
   for (let option of capacityOptions) {
-    if (option.value <= roomsNumberValue && option.value !== `0` && roomsNumberValue !== `100`) {
-      option.hidden = false;
-      option.selected = true;
-    } else if (option.value === `0` && roomsNumberValue === `100`) {
+    if (option.value <= roomsNumberValue && option.value !== `0` && roomsNumberValue !== `100` || option.value === `0` && roomsNumberValue === `100`) {
       option.hidden = false;
       option.selected = true;
     } else {
       option.hidden = true;
-      option.selected = false;
     }
   }
 };
 roomsNumber.addEventListener(`change`, compareRoomsAndCapacity);
-
 
 const onCapacityChange = function () {
   if (capacity.value && roomsNumber.value && capacity.value > roomsNumber.value || capacity.value === `0`) {
@@ -294,3 +323,46 @@ const onCapacityChange = function () {
   capacity.reportValidity();
 };
 capacity.addEventListener(`change`, onCapacityChange);
+
+titleInput.addEventListener(`input`, function () {
+  const valueLength = titleInput.value.length;
+
+  if (valueLength < MIN_TITLE_LENGTH) {
+    titleInput.setCustomValidity(`Ещё ${MIN_TITLE_LENGTH - valueLength} симв.`);
+  } else if (valueLength > MAX_TITLE_LENGTH) {
+    titleInput.setCustomValidity(`Удалите лишние ${valueLength - MAX_TITLE_LENGTH} символы`);
+  } else {
+    titleInput.setCustomValidity(``);
+  }
+  titleInput.reportValidity();
+});
+
+const getTime = function (evt) {
+  let targetValue = evt.target.value;
+  if (evt.target.matches(`#timein`)) {
+    timeOut.value = targetValue;
+  } else if (evt.target.matches(`#timeout`)) {
+    timeIn.value = targetValue;
+  }
+};
+time.addEventListener(`change`, getTime);
+
+const getPrice = function(evt) {
+  let targetKey = evt.target.value;
+  let targetValue = typePrice[targetKey];
+  priceInput.setAttribute(`min`, targetValue);
+  priceInput.setAttribute(`placeholder`, `${targetValue}`);
+}
+typeSelect.addEventListener(`change`, getPrice);
+
+priceInput.addEventListener(`invalid`, function () {
+  if (priceInput.validity.rangeUnderflow) {
+    priceInput.setCustomValidity(`Цена должна быть не ниже ${typePrice[typeSelect.value]} рублей`);
+  } else if (priceInput.validity.rangeOverflow) {
+    priceInput.setCustomValidity(`Цена не должна превышать ${MAX_PRICE} рублей`);
+  } else if (priceInput.validity.valueMissing) {
+    priceInput.setCustomValidity(`Обязательное поле`);
+  } else {
+    priceInput.setCustomValidity(``);
+  }
+});
