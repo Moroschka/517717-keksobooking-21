@@ -18,8 +18,9 @@ const MOUSE_BUTTON_LEFT = 0;
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
 */
-const PIN_CONTROL_WIDTH = 62;
-const PIN_CONTROL_HEIGHT = 62;
+const PIN_CONTROL_WIDTH = 65;
+const PIN_CONTROL_HEIGHT = 65;
+const PIN_CONTROL_ARROW = 22;
 const price = {
   min: 5000,
   max: 10000
@@ -52,13 +53,6 @@ const fieldAddress = noticeForm.querySelector(`#address`);
 const roomsNumber = noticeForm.querySelector(`#room_number`);
 const capacity = noticeForm.querySelector(`#capacity`);
 const mapWidth = similarListElement.offsetWidth;
-const limits = fieldMap.getBoundingClientRect();
-const limitsMapBlock = {
-  top: 0,
-  right: limits.width - mapPinContolCenterX,
-  bottom: limits.height - PIN_CONTROL_HEIGHT,
-  left: -mapPinContolCenterX
-};
 
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -138,7 +132,6 @@ const renderCard = function (card) {
     });
     return imagesFragment;
   };
-
   featuresList.append(createFeaturesList(card.offer.features));
   imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
@@ -173,6 +166,7 @@ const setFormElementsInactive = function () {
     elementForm.disabled = true;
   });
   elementFormInput.disabled = true;
+  noticeForm.classList.add(`ad-form--disabled`);
 };
 setFormElementsInactive();
 
@@ -184,106 +178,94 @@ const setFormElementsActive = function () {
   noticeForm.classList.remove(`ad-form--disabled`);
 };
 
-let getStartCoordinates = function (element) {
+const getStartCoordinates = function (element, shift) {
   const coordinates = {
-    "x": Math.floor(parseInt(element.style.left, 10) + mapPinContolCenterX),
-    "y": Math.floor(parseInt(element.style.top, 10) + mapPinControlCenterY)
+    "x": Math.floor(parseInt(element.style.left, 10) - mapPinContolCenterX),
+    "y": Math.floor(parseInt(element.style.top, 10) - mapPinControlCenterY - shift)
   };
-  return `${coordinates.x}, ${coordinates.y}`;
+  fieldAddress.value = `${coordinates.x}, ${coordinates.y}`;
 };
 
-const transferAddressCoordinates = function () {
-  fieldAddress.value = getStartCoordinates(mapPinControl);
+const setFormActiveBlock = function () {
+  setFormActive();
+  setFormElementsActive();
+  fillBlockOffer();
+  getStartCoordinates(mapPinControl, 0);
 };
-transferAddressCoordinates();
-
 
 mapPinControl.addEventListener(`mousedown`, function (evt) {
   evt.preventDefault();
   if (evt.button === MOUSE_BUTTON_LEFT) {
-    setFormActive();
-    setFormElementsActive();
-    fillBlockOffer();
+    setFormActiveBlock();
   }
 });
 
 mapPinControl.addEventListener(`keydown`, function (evt) {
   if (evt.key === `Enter`) {
-    setFormActive();
-    setFormElementsActive();
-    fillBlockOffer();
+    setFormActiveBlock();
   }
 });
-
 
 mapPinControl.addEventListener(`mousedown`, function (evt) {
   evt.preventDefault();
 
-  let startCoordinates = {
-    x: evt.clientX,
-    y: evt.clientY
-  };
-
-  const onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
-
-    let shift = {
-      x: startCoordinates.x - moveEvt.clientX,
-      y: startCoordinates.y - moveEvt.clientY
-    };
-
-    startCoordinates = {
-      x: moveEvt.clientX,
-      y: moveEvt.clientY
-    };
-
-    if ((mapPinControl.offsetLeft - shift.x) < limitsMapBlock.left) {
-      mapPinControl.style.left = limitsMapBlock.left + `px`;
-    } else if ((mapPinControl.offsetLeft - shift.x) > limitsMapBlock.right) {
-      mapPinControl.style.left = limitsMapBlock.right + `px`;
-    }
-
-    if ((mapPinControl.offsetTop - shift.y) < limitsMapBlock.top) {
-      mapPinControl.style.top = limitsMapBlock.top + `px`;
-    } else if ((mapPinControl.offsetTop - shift.y) > limitsMapBlock.bottom) {
-      mapPinControl.style.top = limitsMapBlock.bottom + `px`;
-    }
-
-    mapPinControl.style.left = (mapPinControl.offsetLeft - shift.x) + `px`;
-    mapPinControl.style.top = (mapPinControl.offsetTop - shift.y) + `px`;
-
-    fieldAddress.value = getStartCoordinates(mapPinControl);
-  };
-
-  const onMouseUp = function (upEvt) {
-    upEvt.preventDefault();
-
-    document.removeEventListener(`mousemove`, onMouseMove);
-    document.removeEventListener(`mouseup`, onMouseUp);
-  };
+  let shiftX = evt.clientX - mapPinControl.getBoundingClientRect().left;
+  let shiftY = evt.clientY - mapPinControl.getBoundingClientRect().top;
 
   document.addEventListener(`mousemove`, onMouseMove);
   document.addEventListener(`mouseup`, onMouseUp);
+
+  function onMouseMove(moveEvt) {
+    let newLeft = moveEvt.clientX - shiftX - fieldMap.getBoundingClientRect().left;
+    let newTop = moveEvt.clientY - shiftY - fieldMap.getBoundingClientRect().top;
+
+    if (newLeft < 0) {
+      newLeft = 0 - mapPinContolCenterX;
+    }
+
+    if (newTop < 0) {
+      newTop = 0;
+    }
+
+    let rightEdge = fieldMap.offsetWidth - mapPinContolCenterX;
+    if (newLeft > rightEdge) {
+      newLeft = rightEdge;
+    }
+
+    let bottomEdge = fieldMap.offsetHeight - mapPinControl.offsetHeight;
+    if (newTop > bottomEdge) {
+      newTop = bottomEdge;
+    }
+
+    mapPinControl.style.left = newLeft + `px`;
+    mapPinControl.style.top = newTop + `px`;
+
+    getStartCoordinates(mapPinControl, PIN_CONTROL_ARROW);
+  }
+
+  function onMouseUp() {
+    document.removeEventListener(`mouseup`, onMouseUp);
+    document.removeEventListener(`mousemove`, onMouseMove);
+  }
+});
+
+mapPinControl.addEventListener(`dragstart`, function () {
+  return false;
 });
 
 const compareRoomsAndCapacity = function () {
   let capacityOptions = capacity.options;
   let roomsNumberValue = roomsNumber.value;
   for (let option of capacityOptions) {
-    if (option.value <= roomsNumberValue && option.value !== `0` && roomsNumberValue !== `100`) {
-      option.hidden = false;
-      option.selected = true;
-    } else if (option.value === `0` && roomsNumberValue === `100`) {
+    if (option.value <= roomsNumberValue && option.value !== `0` && roomsNumberValue !== `100` || option.value === `0` && roomsNumberValue === `100`) {
       option.hidden = false;
       option.selected = true;
     } else {
       option.hidden = true;
-      option.selected = false;
     }
   }
 };
 roomsNumber.addEventListener(`change`, compareRoomsAndCapacity);
-
 
 const onCapacityChange = function () {
   if (capacity.value && roomsNumber.value && capacity.value > roomsNumber.value || capacity.value === `0`) {
