@@ -219,22 +219,17 @@ mapPinControl.addEventListener(`mousedown`, function (evt) {
     let newLeft = moveEvt.clientX - shiftX - fieldMap.getBoundingClientRect().left;
     let newTop = moveEvt.clientY - shiftY - fieldMap.getBoundingClientRect().top;
 
-    if (newLeft < 0) {
-      newLeft = 0 - mapPinContolCenterX;
-    }
-
-    if (newTop < 0) {
-      newTop = 0;
-    }
-
     let rightEdge = fieldMap.offsetWidth - mapPinContolCenterX;
-    if (newLeft > rightEdge) {
+    if (newLeft < 0) {
+      newLeft = -mapPinContolCenterX;
+    } else if (newLeft > rightEdge) {
       newLeft = rightEdge;
     }
 
-    let bottomEdge = fieldMap.offsetHeight - mapPinControl.offsetHeight;
-    if (newTop > bottomEdge) {
-      newTop = bottomEdge;
+    if (newTop < rangeY.min) {
+      newTop = rangeY.min;
+    } else if (newTop > rangeY.max) {
+      newTop = rangeY.max;
     }
 
     mapPinControl.style.left = newLeft + `px`;
