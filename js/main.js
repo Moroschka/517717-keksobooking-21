@@ -17,10 +17,8 @@ const MOUSE_BUTTON_LEFT = 0;
 const MIN_TITLE_LENGTH = 30;
 const MAX_TITLE_LENGTH = 100;
 const MAX_PRICE = 1000000;
-
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
-
 const PIN_CONTROL_WIDTH = 65;
 const PIN_CONTROL_HEIGHT = 65;
 const PIN_CONTROL_ARROW = 22;
@@ -41,17 +39,13 @@ const rangeY = {
   max: 630
 };
 const pinOfferTemplate = document.querySelector(`#pin`).content;
-
 const cardTemplate = document.querySelector(`#card`).content;
-
 const fieldMap = document.querySelector(`.map`);
-const mapPinControl = fieldMap.querySelector(`.map__pin`);
+const mapPinControl = fieldMap.querySelector(`.map__pin--main`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
-const mapCards = fieldMap.querySelectorAll(`.map__card`);
 const mapPinContolCenterX = PIN_CONTROL_WIDTH / 2;
 const mapPinControlCenterY = PIN_CONTROL_HEIGHT / 2;
 const noticeForm = document.querySelector(`.ad-form`);
-const closePopup = noticeForm.querySelector(`.popup__close`)
 const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
 const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
 const titleInput = noticeForm.querySelector(`#title`);
@@ -62,7 +56,7 @@ const typePrice = {
   "flat": 1000,
   "house": 5000,
   "palace": 10000
-}
+};
 const time = noticeForm.querySelector(`.ad-form__element--time`);
 const timeOut = noticeForm.querySelector(`#timeout`);
 const timeIn = noticeForm.querySelector(`#timein`);
@@ -138,6 +132,7 @@ const renderCard = function (card) {
     });
     return featuresFragment;
   };
+
   const createImagesList = function (images) {
     const imagesFragment = document.createDocumentFragment();
     images.forEach(function (img, i) {
@@ -149,6 +144,7 @@ const renderCard = function (card) {
     });
     return imagesFragment;
   };
+
   featuresList.append(createFeaturesList(card.offer.features));
   imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
@@ -170,38 +166,51 @@ const fillBlockOffer = function () {
   similarListElement.appendChild(fragment);
 };
 
-const fillBlockCard = function (index) {
-  similarListElement.appendChild(renderCard(offers[index]));
+const onPopupEscPress = function (evt) {
+  if (evt.key === `Escape`) {
+    removeCard();
+  }
 };
 
-const removeCard = function () {  
+const fillBlockCard = function (index) {
+  similarListElement.appendChild(renderCard(offers[index]));
+
+  document.addEventListener(`keydown`, onPopupEscPress);
+};
+
+const removeCard = function () {
+  const mapCards = fieldMap.querySelectorAll(`.map__card`);
   for (let i = 0; i < mapCards.length; i++) {
     mapCards[i].remove();
   }
 };
 
+const closePopupCard = function () {
+  const closePopup = fieldMap.querySelector(`.popup__close`);
+  closePopup.addEventListener(`click`, removeCard);
+};
+
+const getCardWork = function (index) {
+  removeCard();
+  fillBlockCard(index);
+  closePopupCard();
+};
+
 const getCardOfPin = function () {
   const mapPins = similarListElement.querySelectorAll(`.map__pin[type="button"]`);
   for (let i = 0; i < mapPins.length; i++) {
-    mapPins[i].addEventListener("click", function() {
-      if (mapPins.length > 0) {
-        removeCard();
-      }
-      fillBlockCard(i);
+    mapPins[i].addEventListener(`click`, function () {
+      getCardWork(i);
     });
-  }
-};
 
-/*const closePopupCard = function () {
-  const closePopup = fieldMap.querySelector(`.popup__close`);
-  if (mapCards.length > 0) {
-    closePopup.addEventListener(`click`, function() {
-      console.log(`this`);
+    mapPins[i].addEventListener(`keydown`, function (evt) {
+      if (evt.key === `Enter`) {
+        getCardWork(i);
+      }
     });
   }
+  document.removeEventListener(`keydown`, onPopupEscPress);
 };
-closePopupCard();
-*/
 
 const setFormActive = function () {
   fieldMap.classList.remove(`map--faded`);
@@ -232,28 +241,22 @@ const getStartCoordinates = function (element, shift) {
   fieldAddress.value = `${coordinates.x}, ${coordinates.y}`;
 };
 
-const setFormActiveBlock = function () {
-  setFormActive();
-  setFormElementsActive();
-  fillBlockOffer();
-  getStartCoordinates(mapPinControl, 0);
-  getCardOfPin();
+const setFormActiveBlock = function (evt) {
+  if (evt.button === MOUSE_BUTTON_LEFT || evt.key === `Enter`) {
+    setFormActive();
+    setFormElementsActive();
+    fillBlockOffer();
+    getStartCoordinates(mapPinControl, 0);
+    getCardOfPin();
+  }
 };
 
-mapPinControl.addEventListener(`mousedown`, function (evt) {
-  evt.preventDefault();
-  if (evt.button === MOUSE_BUTTON_LEFT) {
-    setFormActiveBlock();
-  }
-});
-
-mapPinControl.addEventListener(`keydown`, function (evt) {
-  if (evt.key === `Enter`) {
-    setFormActiveBlock();
-  }
-});
+mapPinControl.addEventListener(`mousedown`, setFormActiveBlock);
+mapPinControl.addEventListener(`keydown`, setFormActiveBlock);
 
 mapPinControl.addEventListener(`mousedown`, function (evt) {
+  mapPinControl.removeEventListener(`mousedown`, setFormActiveBlock);
+  mapPinControl.removeEventListener(`keydown`, setFormActiveBlock);
   evt.preventDefault();
 
   let shiftX = evt.clientX - mapPinControl.getBoundingClientRect().left;
@@ -267,7 +270,7 @@ mapPinControl.addEventListener(`mousedown`, function (evt) {
     let newTop = moveEvt.clientY - shiftY - fieldMap.getBoundingClientRect().top;
 
     if (newLeft < 0) {
-      newLeft = 0 - mapPinContolCenterX;
+      newLeft = -mapPinContolCenterX;
     }
 
     if (newTop < 0) {
@@ -347,12 +350,12 @@ const getTime = function (evt) {
 };
 time.addEventListener(`change`, getTime);
 
-const getPrice = function(evt) {
+const getPrice = function (evt) {
   let targetKey = evt.target.value;
   let targetValue = typePrice[targetKey];
   priceInput.setAttribute(`min`, targetValue);
   priceInput.setAttribute(`placeholder`, `${targetValue}`);
-}
+};
 typeSelect.addEventListener(`change`, getPrice);
 
 priceInput.addEventListener(`invalid`, function () {
