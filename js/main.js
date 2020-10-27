@@ -180,37 +180,38 @@ const fillBlockCard = function (index) {
 
 const removeCard = function () {
   const mapCards = fieldMap.querySelectorAll(`.map__card`);
-  for (let i = 0; i < mapCards.length; i++) {
-    mapCards[i].remove();
+  if (mapCards.length > 0) {
+    for (let i = 0; i < mapCards.length; i++) {
+      mapCards[i].remove();
+    }
   }
 };
 
-const closePopupCard = function () {
-  const closePopup = fieldMap.querySelector(`.popup__close`);
-  closePopup.addEventListener(`click`, removeCard);
-};
+const getCardOfPin = function (evt) {
+  let targetMap = evt.target.closest(`button`);
+  const mapPins = similarListElement.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+  const pinsArray = Array.from(mapPins);
+  let index = pinsArray.findIndex((pin) => pin.innerHTML === targetMap.innerHTML);
+  if (targetMap && (!targetMap.classList.contains(`map__pin--main`))
+    && (!targetMap.classList.contains(`popup__close`))) {
+    removeCard();
+    fillBlockCard(index);
+  } else if (targetMap.classList.contains(`popup__close`)) {
+    removeCard();
 
-const getCardWork = function (index) {
-  removeCard();
-  fillBlockCard(index);
-  closePopupCard();
-};
-
-const getCardOfPin = function () {
-  const mapPins = similarListElement.querySelectorAll(`.map__pin[type="button"]`);
-  for (let i = 0; i < mapPins.length; i++) {
-    mapPins[i].addEventListener(`click`, function () {
-      getCardWork(i);
-    });
-
-    mapPins[i].addEventListener(`keydown`, function (evt) {
-      if (evt.key === `Enter`) {
-        getCardWork(i);
-      }
-    });
+    document.removeEventListener(`keydown`, onPopupEscPress);
+    document.removeEventListener(`keydown`, onPopupKeydownPress);
   }
-  document.removeEventListener(`keydown`, onPopupEscPress);
 };
+
+const onPopupKeydownPress = function (evt) {
+  if (evt.key === `Enter`) {
+    getCardOfPin(evt);
+  }
+};
+
+fieldMap.addEventListener(`click`, getCardOfPin);
+fieldMap.addEventListener(`keydown`, onPopupKeydownPress);
 
 const setFormActive = function () {
   fieldMap.classList.remove(`map--faded`);
@@ -247,7 +248,6 @@ const setFormActiveBlock = function (evt) {
     setFormElementsActive();
     fillBlockOffer();
     getStartCoordinates(mapPinControl, 0);
-    getCardOfPin();
   }
 };
 
@@ -298,23 +298,32 @@ mapPinControl.addEventListener(`dragstart`, function () {
   return false;
 });
 
-const compareRoomsAndCapacity = function () {
-  let capacityOptions = capacity.options;
-  let roomsNumberValue = roomsNumber.value;
-  for (let option of capacityOptions) {
-    if (option.value <= roomsNumberValue && option.value !== `0` && roomsNumberValue !== `100` || option.value === `0` && roomsNumberValue === `100`) {
-      option.hidden = false;
-      option.selected = true;
-    } else {
-      option.hidden = true;
-    }
+const onRoomsNumberChange = function () {
+  if (capacity.value && roomsNumber.value
+    && (roomsNumber.value < capacity.value)
+    && (roomsNumber.value !== `100`)
+    && capacity.value !== `0`) {
+    roomsNumber.setCustomValidity(`Количество комнат должно быть больше либо равно ${capacity.value}!`);
+  } else if (roomsNumber.value === `100` && capacity.value !== `0`) {
+    roomsNumber.setCustomValidity(`Укажите ${capacity.value} комн.`);
+  } else if (roomsNumber.value !== `100` && capacity.value === `0`) {
+    roomsNumber.setCustomValidity(`Укажите 100 комн.`);
+  } else {
+    roomsNumber.setCustomValidity(``);
   }
+  roomsNumber.reportValidity();
 };
-roomsNumber.addEventListener(`change`, compareRoomsAndCapacity);
+roomsNumber.addEventListener(`change`, onRoomsNumberChange);
 
 const onCapacityChange = function () {
-  if (capacity.value && roomsNumber.value && capacity.value > roomsNumber.value || capacity.value === `0`) {
+  if (capacity.value && roomsNumber.value
+    && (capacity.value > roomsNumber.value)
+    && (roomsNumber.value !== `100`)) {
     capacity.setCustomValidity(`Количество гостей должно быть не более ${roomsNumber.value}!`);
+  } else if (capacity.value === `0` && roomsNumber.value !== `100`) {
+    capacity.setCustomValidity(`Укажите необходимое количество гостей!`);
+  } else if (capacity.value !== `0` && roomsNumber.value === `100`) {
+    capacity.setCustomValidity(`Укажите "Не для гостей"`);
   } else {
     capacity.setCustomValidity(``);
   }
