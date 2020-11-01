@@ -13,8 +13,14 @@ const TYPE_HOUSING = {
 };
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
+const MOUSE_BUTTON_LEFT = 0;
+/*
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
+*/
+const PIN_CONTROL_WIDTH = 65;
+const PIN_CONTROL_HEIGHT = 65;
+const PIN_CONTROL_ARROW = 22;
 const price = {
   min: 5000,
   max: 10000
@@ -32,10 +38,21 @@ const rangeY = {
   max: 630
 };
 const pinOfferTemplate = document.querySelector(`#pin`).content;
-const fieldMap = document.querySelector(`.map`);
-const similarListElement = fieldMap.querySelector(`.map__pins`);
-const mapWidth = similarListElement.offsetWidth;
+/*
 const cardTemplate = document.querySelector(`#card`).content;
+*/
+const fieldMap = document.querySelector(`.map`);
+const mapPinControl = fieldMap.querySelector(`.map__pin`);
+const similarListElement = fieldMap.querySelector(`.map__pins`);
+const mapPinContolCenterX = PIN_CONTROL_WIDTH / 2;
+const mapPinControlCenterY = PIN_CONTROL_HEIGHT / 2;
+const noticeForm = document.querySelector(`.ad-form`);
+const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
+const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
+const fieldAddress = noticeForm.querySelector(`#address`);
+const roomsNumber = noticeForm.querySelector(`#room_number`);
+const capacity = noticeForm.querySelector(`#capacity`);
+const mapWidth = similarListElement.offsetWidth;
 
 const getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -44,11 +61,6 @@ const getRandomNumber = function (min, max) {
 const getRandomVariant = function (data) {
   return data.filter(() => Math.random() < 0.5);
 };
-
-const makeMapActive = function () {
-  document.querySelector(`.map`).classList.remove(`map--faded`);
-};
-makeMapActive();
 
 const createOffersMock = function () {
   const createOffer = function (index) {
@@ -77,14 +89,12 @@ const createOffersMock = function () {
       }
     };
   };
-
   let offersMock = [];
   for (let i = 1; i <= NUMBER_OFFERS; i++) {
     offersMock.push(createOffer(i));
   }
   return offersMock;
 };
-
 const offers = createOffersMock();
 
 const renderPinOffer = function (offer) {
@@ -93,19 +103,15 @@ const renderPinOffer = function (offer) {
   pinOfferElement.querySelector(`.map__pin`).style.top = (offer.location.y + PIN_HEIGHT) + `px`;
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`src`, offer.author.avatar);
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
-
   return pinOfferElement;
 };
-
-
+/*
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
   const featuresList = cardElement.querySelector(`.popup__features`);
   const imagesList = cardElement.querySelector(`.popup__photos`);
-
   featuresList.innerHTML = ``;
   imagesList.innerHTML = ``;
-
   const createFeaturesList = function (features) {
     const featuresFragment = document.createDocumentFragment();
     features.forEach(function (feature, i) {
@@ -115,7 +121,6 @@ const renderCard = function (card) {
     });
     return featuresFragment;
   };
-
   const createImagesList = function (images) {
     const imagesFragment = document.createDocumentFragment();
     images.forEach(function (img, i) {
@@ -127,7 +132,6 @@ const renderCard = function (card) {
     });
     return imagesFragment;
   };
-
   featuresList.append(createFeaturesList(card.offer.features));
   imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
@@ -138,10 +142,9 @@ const renderCard = function (card) {
   cardElement.querySelector(`.popup__type`).textContent = card.offer.type;
   cardElement.querySelector(`.popup__avatar`).setAttribute(`src`, card.author.avatar);
   cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
-
   return cardElement;
 };
-
+*/
 const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
@@ -149,9 +152,131 @@ const fillBlockOffer = function () {
   }
   similarListElement.appendChild(fragment);
 };
-fillBlockOffer();
-
+/*
 const fillBlockCard = function () {
   similarListElement.appendChild(renderCard(offers[0]));
 };
-fillBlockCard();
+*/
+const setFormActive = function () {
+  fieldMap.classList.remove(`map--faded`);
+};
+
+const setFormElementsInactive = function () {
+  elementsForm.forEach(function (elementForm) {
+    elementForm.disabled = true;
+  });
+  elementFormInput.disabled = true;
+  noticeForm.classList.add(`ad-form--disabled`);
+};
+setFormElementsInactive();
+
+const setFormElementsActive = function () {
+  elementsForm.forEach(function (elementForm) {
+    elementForm.disabled = false;
+  });
+  elementFormInput.disabled = false;
+  noticeForm.classList.remove(`ad-form--disabled`);
+};
+
+const getStartCoordinates = function (element, shift) {
+  const coordinates = {
+    "x": Math.floor(parseInt(element.style.left, 10) - mapPinContolCenterX),
+    "y": Math.floor(parseInt(element.style.top, 10) - mapPinControlCenterY - shift)
+  };
+  fieldAddress.value = `${coordinates.x}, ${coordinates.y}`;
+};
+
+const setFormActiveBlock = function () {
+  setFormActive();
+  setFormElementsActive();
+  fillBlockOffer();
+  getStartCoordinates(mapPinControl, 0);
+};
+
+mapPinControl.addEventListener(`mousedown`, function (evt) {
+  evt.preventDefault();
+  if (evt.button === MOUSE_BUTTON_LEFT) {
+    setFormActiveBlock();
+  }
+});
+
+mapPinControl.addEventListener(`keydown`, function (evt) {
+  if (evt.key === `Enter`) {
+    setFormActiveBlock();
+  }
+});
+
+mapPinControl.addEventListener(`mousedown`, function (evt) {
+  evt.preventDefault();
+
+  let shiftX = evt.clientX - mapPinControl.getBoundingClientRect().left;
+  let shiftY = evt.clientY - mapPinControl.getBoundingClientRect().top;
+
+  document.addEventListener(`mousemove`, onMouseMove);
+  document.addEventListener(`mouseup`, onMouseUp);
+
+  function onMouseMove(moveEvt) {
+    let newLeft = moveEvt.clientX - shiftX - fieldMap.getBoundingClientRect().left;
+    let newTop = moveEvt.clientY - shiftY - fieldMap.getBoundingClientRect().top;
+
+    let rightEdge = fieldMap.offsetWidth - mapPinContolCenterX;
+    if (newLeft < 0) {
+      newLeft = -mapPinContolCenterX;
+    } else if (newLeft > rightEdge) {
+      newLeft = rightEdge;
+    }
+
+    if (newTop < rangeY.min) {
+      newTop = rangeY.min;
+    } else if (newTop > rangeY.max) {
+      newTop = rangeY.max;
+    }
+
+    mapPinControl.style.left = newLeft + `px`;
+    mapPinControl.style.top = newTop + `px`;
+
+    getStartCoordinates(mapPinControl, PIN_CONTROL_ARROW);
+  }
+
+  function onMouseUp() {
+    document.removeEventListener(`mouseup`, onMouseUp);
+    document.removeEventListener(`mousemove`, onMouseMove);
+  }
+});
+
+mapPinControl.addEventListener(`dragstart`, function () {
+  return false;
+});
+
+const onRoomsNumberChange = function () {
+  if (capacity.value && roomsNumber.value
+    && (roomsNumber.value < capacity.value)
+    && (roomsNumber.value !== `100`)
+    && capacity.value !== `0`) {
+    roomsNumber.setCustomValidity(`Количество комнат должно быть больше либо равно ${capacity.value}!`);
+  } else if (roomsNumber.value === `100` && capacity.value !== `0`) {
+    roomsNumber.setCustomValidity(`Укажите ${capacity.value} комн.`);
+  } else if (roomsNumber.value !== `100` && capacity.value === `0`) {
+    roomsNumber.setCustomValidity(`Укажите 100 комн.`);
+  } else {
+    roomsNumber.setCustomValidity(``);
+  }
+  roomsNumber.reportValidity();
+};
+roomsNumber.addEventListener(`change`, onRoomsNumberChange);
+
+const onCapacityChange = function () {
+  if (capacity.value && roomsNumber.value
+    && (capacity.value > roomsNumber.value)
+    && (roomsNumber.value !== `100`)) {
+    capacity.setCustomValidity(`Количество гостей должно быть не более ${roomsNumber.value}!`);
+  } else if (capacity.value === `0` && roomsNumber.value !== `100`) {
+    capacity.setCustomValidity(`Укажите необходимое количество гостей!`);
+  } else if (capacity.value !== `0` && roomsNumber.value === `100`) {
+    capacity.setCustomValidity(`Укажите "Не для гостей"`);
+  } else {
+    capacity.setCustomValidity(``);
+  }
+  capacity.reportValidity();
+};
+capacity.addEventListener(`change`, onCapacityChange);
