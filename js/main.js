@@ -181,13 +181,13 @@ const fillBlockCard = function (index) {
 const removeCard = function () {
   const mapCard = fieldMap.querySelector(`.map__card`);
   if (mapCard) {
-      mapCard.remove();
+    mapCard.remove();
   }
 };
 
 const getIdforPins = function () {
   const mapPins = similarListElement.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-  mapPins.forEach(function(pin, i) {
+  mapPins.forEach(function (pin, i) {
     pin.setAttribute(`id`, i);
   });
 };
@@ -195,7 +195,7 @@ const getIdforPins = function () {
 const getCardOfPin = function (evt) {
   getIdforPins();
   let targetMap = evt.target.closest(`button`);
-  
+
   if (targetMap && targetMap.hasAttribute(`id`)) {
     let index = targetMap.getAttribute(`id`);
     removeCard();
