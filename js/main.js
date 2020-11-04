@@ -185,16 +185,22 @@ const removeCard = function () {
   }
 };
 
-const getCardOfPin = function (evt) {
-  let targetMap = evt.target.closest(`button`);
+const getIdforPins = function () {
   const mapPins = similarListElement.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-  const pinsArray = Array.from(mapPins);
-  let index = pinsArray.findIndex((pin) => pin.innerHTML === targetMap.innerHTML);
-  if (targetMap && (!targetMap.classList.contains(`map__pin--main`))
-    && (!targetMap.classList.contains(`popup__close`))) {
+  mapPins.forEach(function(pin, i) {
+    pin.setAttribute(`id`, i);
+  });
+};
+
+const getCardOfPin = function (evt) {
+  getIdforPins();
+  let targetMap = evt.target.closest(`button`);
+  
+  if (targetMap && targetMap.hasAttribute(`id`)) {
+    let index = targetMap.getAttribute(`id`);
     removeCard();
     fillBlockCard(index);
-  } else if (targetMap.classList.contains(`popup__close`)) {
+  } else if (targetMap && targetMap.classList.contains(`popup__close`)) {
     removeCard();
 
     document.removeEventListener(`keydown`, onPopupEscPress);
