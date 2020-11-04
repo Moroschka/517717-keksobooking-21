@@ -179,11 +179,9 @@ const fillBlockCard = function (index) {
 };
 
 const removeCard = function () {
-  const mapCards = fieldMap.querySelectorAll(`.map__card`);
-  if (mapCards.length > 0) {
-    for (let i = 0; i < mapCards.length; i++) {
-      mapCards[i].remove();
-    }
+  const mapCard = fieldMap.querySelector(`.map__card`);
+  if (mapCard) {
+      mapCard.remove();
   }
 };
 
