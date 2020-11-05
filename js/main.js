@@ -192,8 +192,7 @@ const getIdforPins = function () {
   });
 };
 
-const getCardOfPin = function (evt) {
-  getIdforPins();
+const getCardOfPin = function (evt) {  
   let targetMap = evt.target.closest(`button`);
 
   if (targetMap && targetMap.hasAttribute(`id`)) {
@@ -251,6 +250,7 @@ const setFormActiveBlock = function (evt) {
     setFormActive();
     setFormElementsActive();
     fillBlockOffer();
+    getIdforPins();
     getStartCoordinates(mapPinControl, 0);
   }
 };
