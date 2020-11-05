@@ -93,7 +93,7 @@ const createOffersMock = function () {
         "features": getRandomVariant(FEATURES),
         "description": `Описание ${index}`,
         "photos": getRandomVariant(PHOTOS),
-        "id": `${index}`
+        "id": `${index - 1}`
       },
       "location": {
         "x": locationX,
@@ -193,7 +193,7 @@ const getCardOfPin = function (evt) {
   if (targetMap && targetMap.hasAttribute(`id`)) {
     let index = targetMap.getAttribute(`id`);
     removeCard();
-    fillBlockCard(index - 1);
+    fillBlockCard(index);
   } else if (targetMap && targetMap.classList.contains(`popup__close`)) {
     removeCard();
 
