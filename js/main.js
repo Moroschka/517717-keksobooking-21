@@ -92,7 +92,8 @@ const createOffersMock = function () {
         "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length - 1)],
         "features": getRandomVariant(FEATURES),
         "description": `Описание ${index}`,
-        "photos": getRandomVariant(PHOTOS)
+        "photos": getRandomVariant(PHOTOS),
+        "id": `${index}`
       },
       "location": {
         "x": locationX,
@@ -112,6 +113,7 @@ const renderPinOffer = function (offer) {
   const pinOfferElement = pinOfferTemplate.cloneNode(true);
   pinOfferElement.querySelector(`.map__pin`).style.left = (offer.location.x + PIN_WIDTH / 2) + `px`;
   pinOfferElement.querySelector(`.map__pin`).style.top = (offer.location.y + PIN_HEIGHT) + `px`;
+  pinOfferElement.querySelector(`.map__pin`).setAttribute(`id`, offer.offer.id);
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`src`, offer.author.avatar);
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
   return pinOfferElement;
@@ -185,20 +187,13 @@ const removeCard = function () {
   }
 };
 
-const getIdforPins = function () {
-  const mapPins = similarListElement.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-  mapPins.forEach(function (pin, i) {
-    pin.setAttribute(`id`, i);
-  });
-};
-
 const getCardOfPin = function (evt) {
   let targetMap = evt.target.closest(`button`);
 
   if (targetMap && targetMap.hasAttribute(`id`)) {
     let index = targetMap.getAttribute(`id`);
     removeCard();
-    fillBlockCard(index);
+    fillBlockCard(index - 1);
   } else if (targetMap && targetMap.classList.contains(`popup__close`)) {
     removeCard();
 
@@ -250,7 +245,6 @@ const setFormActiveBlock = function (evt) {
     setFormActive();
     setFormElementsActive();
     fillBlockOffer();
-    getIdforPins();
     getStartCoordinates(mapPinControl, 0);
   }
 };
