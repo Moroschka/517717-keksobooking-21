@@ -192,7 +192,7 @@ const getIdforPins = function () {
   });
 };
 
-const getCardOfPin = function (evt) {  
+const getCardOfPin = function (evt) {
   let targetMap = evt.target.closest(`button`);
 
   if (targetMap && targetMap.hasAttribute(`id`)) {
