@@ -14,10 +14,11 @@ const TYPE_HOUSING = {
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
 const MOUSE_BUTTON_LEFT = 0;
-/*
+const MIN_TITLE_LENGTH = 30;
+const MAX_TITLE_LENGTH = 100;
+const MAX_PRICE = 1000000;
 const IMAGE_WIDTH = 45;
 const IMAGE_HEIGHT = 40;
-*/
 const PIN_CONTROL_WIDTH = 65;
 const PIN_CONTROL_HEIGHT = 65;
 const PIN_CONTROL_ARROW = 22;
@@ -38,17 +39,27 @@ const rangeY = {
   max: 630
 };
 const pinOfferTemplate = document.querySelector(`#pin`).content;
-/*
 const cardTemplate = document.querySelector(`#card`).content;
-*/
 const fieldMap = document.querySelector(`.map`);
-const mapPinControl = fieldMap.querySelector(`.map__pin`);
+const mapPinControl = fieldMap.querySelector(`.map__pin--main`);
 const similarListElement = fieldMap.querySelector(`.map__pins`);
 const mapPinContolCenterX = PIN_CONTROL_WIDTH / 2;
 const mapPinControlCenterY = PIN_CONTROL_HEIGHT / 2;
 const noticeForm = document.querySelector(`.ad-form`);
 const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
 const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
+const titleInput = noticeForm.querySelector(`#title`);
+const typeSelect = noticeForm.querySelector(`#type`);
+const priceInput = noticeForm.querySelector(`#price`);
+const typePrice = {
+  "bungalow": 0,
+  "flat": 1000,
+  "house": 5000,
+  "palace": 10000
+};
+const time = noticeForm.querySelector(`.ad-form__element--time`);
+const timeOut = noticeForm.querySelector(`#timeout`);
+const timeIn = noticeForm.querySelector(`#timein`);
 const fieldAddress = noticeForm.querySelector(`#address`);
 const roomsNumber = noticeForm.querySelector(`#room_number`);
 const capacity = noticeForm.querySelector(`#capacity`);
@@ -81,7 +92,8 @@ const createOffersMock = function () {
         "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length - 1)],
         "features": getRandomVariant(FEATURES),
         "description": `Описание ${index}`,
-        "photos": getRandomVariant(PHOTOS)
+        "photos": getRandomVariant(PHOTOS),
+        "id": `${index - 1}`
       },
       "location": {
         "x": locationX,
@@ -101,11 +113,12 @@ const renderPinOffer = function (offer) {
   const pinOfferElement = pinOfferTemplate.cloneNode(true);
   pinOfferElement.querySelector(`.map__pin`).style.left = (offer.location.x + PIN_WIDTH / 2) + `px`;
   pinOfferElement.querySelector(`.map__pin`).style.top = (offer.location.y + PIN_HEIGHT) + `px`;
+  pinOfferElement.querySelector(`.map__pin`).setAttribute(`id`, offer.offer.id);
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`src`, offer.author.avatar);
   pinOfferElement.querySelector(`.map__pin img`).setAttribute(`alt`, offer.offer.title);
   return pinOfferElement;
 };
-/*
+
 const renderCard = function (card) {
   const cardElement = cardTemplate.cloneNode(true);
   const featuresList = cardElement.querySelector(`.popup__features`);
@@ -121,6 +134,7 @@ const renderCard = function (card) {
     });
     return featuresFragment;
   };
+
   const createImagesList = function (images) {
     const imagesFragment = document.createDocumentFragment();
     images.forEach(function (img, i) {
@@ -132,6 +146,7 @@ const renderCard = function (card) {
     });
     return imagesFragment;
   };
+
   featuresList.append(createFeaturesList(card.offer.features));
   imagesList.append(createImagesList(card.offer.photos));
   cardElement.querySelector(`.popup__title`).textContent = card.offer.title;
@@ -144,7 +159,7 @@ const renderCard = function (card) {
   cardElement.querySelector(`.popup__description`).textContent = card.offer.description;
   return cardElement;
 };
-*/
+
 const fillBlockOffer = function () {
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < offers.length; i++) {
@@ -152,11 +167,50 @@ const fillBlockOffer = function () {
   }
   similarListElement.appendChild(fragment);
 };
-/*
-const fillBlockCard = function () {
-  similarListElement.appendChild(renderCard(offers[0]));
+
+const onPopupEscPress = function (evt) {
+  if (evt.key === `Escape`) {
+    removeCard();
+  }
 };
-*/
+
+const fillBlockCard = function (index) {
+  similarListElement.appendChild(renderCard(offers[index]));
+
+  document.addEventListener(`keydown`, onPopupEscPress);
+};
+
+const removeCard = function () {
+  const mapCard = fieldMap.querySelector(`.map__card`);
+  if (mapCard) {
+    mapCard.remove();
+  }
+};
+
+const getCardOfPin = function (evt) {
+  let targetMap = evt.target.closest(`button`);
+
+  if (targetMap && targetMap.hasAttribute(`id`)) {
+    let index = targetMap.getAttribute(`id`);
+    removeCard();
+    fillBlockCard(index);
+  } else if (targetMap && targetMap.classList.contains(`popup__close`)) {
+    removeCard();
+
+    document.removeEventListener(`keydown`, onPopupEscPress);
+    document.removeEventListener(`keydown`, onPopupKeydownPress);
+  }
+};
+
+const onPopupKeydownPress = function (evt) {
+  if (evt.key === `Enter`) {
+    getCardOfPin(evt);
+  }
+};
+
+fieldMap.addEventListener(`click`, getCardOfPin);
+fieldMap.addEventListener(`keydown`, onPopupKeydownPress);
+
 const setFormActive = function () {
   fieldMap.classList.remove(`map--faded`);
 };
@@ -186,27 +240,21 @@ const getStartCoordinates = function (element, shift) {
   fieldAddress.value = `${coordinates.x}, ${coordinates.y}`;
 };
 
-const setFormActiveBlock = function () {
-  setFormActive();
-  setFormElementsActive();
-  fillBlockOffer();
-  getStartCoordinates(mapPinControl, 0);
+const setFormActiveBlock = function (evt) {
+  if (evt.button === MOUSE_BUTTON_LEFT || evt.key === `Enter`) {
+    setFormActive();
+    setFormElementsActive();
+    fillBlockOffer();
+    getStartCoordinates(mapPinControl, 0);
+  }
 };
 
-mapPinControl.addEventListener(`mousedown`, function (evt) {
-  evt.preventDefault();
-  if (evt.button === MOUSE_BUTTON_LEFT) {
-    setFormActiveBlock();
-  }
-});
-
-mapPinControl.addEventListener(`keydown`, function (evt) {
-  if (evt.key === `Enter`) {
-    setFormActiveBlock();
-  }
-});
+mapPinControl.addEventListener(`mousedown`, setFormActiveBlock);
+mapPinControl.addEventListener(`keydown`, setFormActiveBlock);
 
 mapPinControl.addEventListener(`mousedown`, function (evt) {
+  mapPinControl.removeEventListener(`mousedown`, setFormActiveBlock);
+  mapPinControl.removeEventListener(`keydown`, setFormActiveBlock);
   evt.preventDefault();
 
   let shiftX = evt.clientX - mapPinControl.getBoundingClientRect().left;
@@ -280,3 +328,46 @@ const onCapacityChange = function () {
   capacity.reportValidity();
 };
 capacity.addEventListener(`change`, onCapacityChange);
+
+titleInput.addEventListener(`input`, function () {
+  const valueLength = titleInput.value.length;
+
+  if (valueLength < MIN_TITLE_LENGTH) {
+    titleInput.setCustomValidity(`Ещё ${MIN_TITLE_LENGTH - valueLength} симв.`);
+  } else if (valueLength > MAX_TITLE_LENGTH) {
+    titleInput.setCustomValidity(`Удалите лишние ${valueLength - MAX_TITLE_LENGTH} символы`);
+  } else {
+    titleInput.setCustomValidity(``);
+  }
+  titleInput.reportValidity();
+});
+
+const getTime = function (evt) {
+  let targetValue = evt.target.value;
+  if (evt.target.matches(`#timein`)) {
+    timeOut.value = targetValue;
+  } else if (evt.target.matches(`#timeout`)) {
+    timeIn.value = targetValue;
+  }
+};
+time.addEventListener(`change`, getTime);
+
+const getPrice = function (evt) {
+  let targetKey = evt.target.value;
+  let targetValue = typePrice[targetKey];
+  priceInput.setAttribute(`min`, targetValue);
+  priceInput.setAttribute(`placeholder`, `${targetValue}`);
+};
+typeSelect.addEventListener(`change`, getPrice);
+
+priceInput.addEventListener(`invalid`, function () {
+  if (priceInput.validity.rangeUnderflow) {
+    priceInput.setCustomValidity(`Цена должна быть не ниже ${typePrice[typeSelect.value]} рублей`);
+  } else if (priceInput.validity.rangeOverflow) {
+    priceInput.setCustomValidity(`Цена не должна превышать ${MAX_PRICE} рублей`);
+  } else if (priceInput.validity.valueMissing) {
+    priceInput.setCustomValidity(`Обязательное поле`);
+  } else {
+    priceInput.setCustomValidity(``);
+  }
+});
