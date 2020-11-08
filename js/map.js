@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  const MOUSE_BUTTON_LEFT = 0;  
+  const MOUSE_BUTTON_LEFT = 0;
 
   window.fieldMap = document.querySelector(`.map`);
   window.mapPinControl = fieldMap.querySelector(`.map__pin--main`);
@@ -58,6 +58,3 @@
   mapPinControl.addEventListener(`mousedown`, setFormActiveBlock);
   mapPinControl.addEventListener(`keydown`, setFormActiveBlock);
 })();
-
-
-
