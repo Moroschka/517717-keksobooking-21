@@ -12,7 +12,7 @@
     "house": `Дом`,
     "palace": `Дворец`
   };
-  const mapWidth = similarListElement.offsetWidth;
+  const mapWidth = window.pin.similarListElement.offsetWidth;
   const price = {
     min: 5000,
     max: 10000
@@ -25,15 +25,15 @@
     min: 1,
     max: 10
   };
-  const rangeY = {
+  window.rangeY = {
     min: 130,
     max: 630
   };
 
   const createOffersMock = function () {
     const createOffer = function (index) {
-      const locationX = getRandomNumber(0, mapWidth);
-      const locationY = getRandomNumber(rangeY.min, rangeY.max);
+      const locationX = window.getRandomNumber(0, mapWidth);
+      const locationY = window.getRandomNumber(window.rangeY.min, window.rangeY.max);
       return {
         "author": {
           "avatar": `img/avatars/user${(index < 10 ? `0${index}` : index)}.png`
@@ -41,15 +41,15 @@
         "offer": {
           "title": `Заголовок ${index}`,
           "address": `${locationX}, ${locationY}`,
-          "price": getRandomNumber(price.min, price.max),
-          "type": TYPE_HOUSING[Object.keys(TYPE_HOUSING)[getRandomNumber(0, Object.keys(TYPE_HOUSING).length - 1)]],
-          "rooms": getRandomNumber(rooms.min, rooms.max),
-          "guests": getRandomNumber(guests.min, guests.max),
-          "checkin": CHECKIN[getRandomNumber(0, CHECKIN.length - 1)],
-          "checkout": CHECKOUT[getRandomNumber(0, CHECKOUT.length - 1)],
-          "features": getRandomVariant(FEATURES),
+          "price": window.getRandomNumber(price.min, price.max),
+          "type": TYPE_HOUSING[Object.keys(TYPE_HOUSING)[window.getRandomNumber(0, Object.keys(TYPE_HOUSING).length - 1)]],
+          "rooms": window.getRandomNumber(rooms.min, rooms.max),
+          "guests": window.getRandomNumber(guests.min, guests.max),
+          "checkin": CHECKIN[window.getRandomNumber(0, CHECKIN.length - 1)],
+          "checkout": CHECKOUT[window.getRandomNumber(0, CHECKOUT.length - 1)],
+          "features": window.getRandomVariant(FEATURES),
           "description": `Описание ${index}`,
-          "photos": getRandomVariant(PHOTOS),
+          "photos": window.getRandomVariant(PHOTOS),
           "id": `${index - 1}`
         },
         "location": {

@@ -53,13 +53,13 @@
   };
 
   const fillBlockCard = function (index) {
-    similarListElement.appendChild(renderCard(offers[index]));
+    window.pin.similarListElement.appendChild(renderCard(window.offers[index]));
 
     document.addEventListener(`keydown`, onPopupEscPress);
   };
 
   const removeCard = function () {
-    const mapCard = fieldMap.querySelector(`.map__card`);
+    const mapCard = window.map.fieldMap.querySelector(`.map__card`);
     if (mapCard) {
       mapCard.remove();
     }
@@ -86,6 +86,6 @@
     }
   };
 
-  fieldMap.addEventListener(`click`, getCardOfPin);
-  fieldMap.addEventListener(`keydown`, onPopupKeydownPress);
+  window.map.fieldMap.addEventListener(`click`, getCardOfPin);
+  window.map.fieldMap.addEventListener(`keydown`, onPopupKeydownPress);
 })();

@@ -4,7 +4,7 @@
   const PIN_WIDTH = 50;
   const PIN_HEIGHT = 70;
   const pinOfferTemplate = document.querySelector(`#pin`).content;
-  window.similarListElement = fieldMap.querySelector(`.map__pins`);
+  const similarListElement = document.querySelector(`.map__pins`);
 
   const renderPinOffer = function (offer) {
     const pinOfferElement = pinOfferTemplate.cloneNode(true);
@@ -18,10 +18,14 @@
 
   const fillBlockOffer = function () {
     const fragment = document.createDocumentFragment();
-    for (let i = 0; i < offers.length; i++) {
-      fragment.appendChild(renderPinOffer(offers[i]));
+    for (let i = 0; i < window.offers.length; i++) {
+      fragment.appendChild(renderPinOffer(window.offers[i]));
     }
     similarListElement.appendChild(fragment);
   };
-  window.fillBlockOffer = fillBlockOffer;
+
+  window.pin = {
+    similarListElement: similarListElement,
+    fillBlockOffer: fillBlockOffer
+  };
 })();

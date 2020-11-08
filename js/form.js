@@ -5,11 +5,12 @@
   const MAX_TITLE_LENGTH = 100;
   const MAX_PRICE = 1000000;
   const noticeForm = document.querySelector(`.ad-form`);
-  window.noticeForm = noticeForm;
   const time = noticeForm.querySelector(`.ad-form__element--time`);
+  const elementsForm = noticeForm.querySelectorAll(`.ad-form__element`);
+  const elementFormInput = noticeForm.querySelector(`.ad-form-header__input`);
   const timeOut = noticeForm.querySelector(`#timeout`);
   const timeIn = noticeForm.querySelector(`#timein`);
-  window.fieldAddress = noticeForm.querySelector(`#address`);
+  const fieldAddress = noticeForm.querySelector(`#address`);
   const roomsNumber = noticeForm.querySelector(`#room_number`);
   const capacity = noticeForm.querySelector(`#capacity`);
   const titleInput = noticeForm.querySelector(`#title`);
@@ -97,4 +98,11 @@
       priceInput.setCustomValidity(``);
     }
   });
+
+  window.form = {
+    noticeForm: noticeForm,
+    elementsForm: elementsForm,
+    elementFormInput: elementFormInput,
+    fieldAddress: fieldAddress
+  };
 })();
