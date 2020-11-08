@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  const PIN_CONTROL_ARROW = 22;  
+  const PIN_CONTROL_ARROW = 22;
   mapPinControl.addEventListener(`mousedown`, function (evt) {
     mapPinControl.removeEventListener(`mousedown`, setFormActiveBlock);
     mapPinControl.removeEventListener(`keydown`, setFormActiveBlock);
